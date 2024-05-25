@@ -3,6 +3,23 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { SequelizeOptions } from 'sequelize-typescript';
 
+const DATABASE_NAME = 'database.sqlite3';
+
+function getDatabasePath() {
+  let databasePath: string;
+  switch (process.env.NODE_ENV) {
+    case 'dev':
+    case 'staging':
+      databasePath = join(cwd(), DATABASE_NAME);
+      break;
+    case 'prod':
+    default:
+      databasePath = join(process.env.DATABASE_PATH);
+      break;
+  }
+  return databasePath;
+}
+
 function getDatabaseConfig(): Partial<
   {
     name?: string;
@@ -15,7 +32,7 @@ function getDatabaseConfig(): Partial<
 > {
   return {
     dialect: 'sqlite',
-    storage: join(cwd(), 'database.sqlite'),
+    storage: getDatabasePath(),
     autoLoadModels: true,
     synchronize: true,
   };

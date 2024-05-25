@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
 import { Task } from '../../interfaces/task.interface';
+import { environment } from '../../../environments/environment';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -13,12 +14,10 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class TaskService {
-  private apiUrl = 'http://localhost:5000/tasks';
-
   constructor(private http: HttpClient) {}
 
   getTasks(): Observable<Task[]> {
-    return this.http.get<Task[]>(this.apiUrl).pipe(
+    return this.http.get<Task[]>(environment.taskApiUrl).pipe(
       catchError((error) => {
         console.log('Error: ', error);
         return [];
@@ -27,7 +26,7 @@ export class TaskService {
   }
 
   deleteTask(task: Task): Observable<Task> {
-    return this.http.delete<Task>(`${this.apiUrl}/${task.id}`).pipe(
+    return this.http.delete<Task>(`${environment.taskApiUrl}/${task.id}`).pipe(
       catchError((error) => {
         console.log('Error: ', error);
         return [];
@@ -37,7 +36,7 @@ export class TaskService {
 
   udpateTaskReminder(task: Task): Observable<Task> {
     return this.http
-      .put<Task>(`${this.apiUrl}/${task.id}`, task, httpOptions)
+      .put<Task>(`${environment.taskApiUrl}/${task.id}`, task, httpOptions)
       .pipe(
         catchError((error) => {
           console.log('Error: ', error);
@@ -48,7 +47,7 @@ export class TaskService {
 
   addTask(task: Task): Observable<Task> {
     return this.http
-      .post<Task>(`${this.apiUrl}/create`, task, httpOptions)
+      .post<Task>(`${environment.taskApiUrl}/create`, task, httpOptions)
       .pipe(
         catchError((error) => {
           console.log('Error: ', error);
