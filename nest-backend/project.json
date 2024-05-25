@@ -1,0 +1,31 @@
+{
+  "name": "nest-backend",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "nest-backend/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "nest-backend:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nest-backend:build:development"
+        },
+        "production": {
+          "buildTarget": "nest-backend:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "nest-backend/jest.config.ts"
+      }
+    }
+  }
+}
