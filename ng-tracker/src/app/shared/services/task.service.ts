@@ -47,11 +47,13 @@ export class TaskService {
   }
 
   addTask(task: Task): Observable<Task> {
-    return this.http.post<Task>(this.apiUrl, task, httpOptions).pipe(
-      catchError((error) => {
-        console.log('Error: ', error);
-        return [];
-      })
-    );
+    return this.http
+      .post<Task>(`${this.apiUrl}/create`, task, httpOptions)
+      .pipe(
+        catchError((error) => {
+          console.log('Error: ', error);
+          return [];
+        })
+      );
   }
 }

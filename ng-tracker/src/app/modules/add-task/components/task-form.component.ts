@@ -3,6 +3,7 @@ import { Task } from '../../../interfaces/task.interface';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService } from '../../../shared/services/task.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-task-form',
@@ -102,6 +103,7 @@ export class TaskFormComponent {
     }
 
     const newTask = {
+      id: uuidv4(),
       text: this.taskForm.value.text,
       day: this.taskForm.value.day,
       reminder: this.taskForm.value.reminder || false,
