@@ -3,6 +3,4 @@ export class CreateTaskDto {
   text: string;
   day: string;
   reminder: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
