@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a sample Electron app powered by Angular, Nest, SQLite3, and Nx. The project showcases the minimum setup to build an Electron app.
+This is a sample Electron app powered by Angular, Nest, SQLite3, Electron, and Nx. The project showcases the minimum setup to build an Electron app.
 
 ## Development
 
@@ -36,4 +36,4 @@ Please run
 npm run make
 ```
 
-The command generates a zip file and it's for windows. Please change the settings in the `forge.config.js` to build the app according to the OS.
+The command generates a zip file and it's for Windows machine. Please change the settings in the `forge.config.js` to build the app according to the OS.
