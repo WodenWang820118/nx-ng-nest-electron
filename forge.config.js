@@ -6,7 +6,7 @@ module.exports = {
       './dist/nest-backend/main.js',
       './dist/nest-backend/package.json',
       './dist/nest-backend/package-lock.json',
-      './dist/nest-backend/node_modules', // Include node_modules
+      './dist/nest-backend/node_modules',
     ],
   },
   rebuildConfig: {},
@@ -22,9 +22,4 @@ module.exports = {
       config: {},
     },
   ],
-  hooks: {
-    postStart: async (forgeConfig, appProcess) => {
-      console.log(`Spawned child pid: ${appProcess.pid}`);
-    },
-  },
 };
