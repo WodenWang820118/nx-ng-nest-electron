@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 // Helper function to run a command and return a promise
-const runCommand = (command, args, options) => {
+const runCommand = (command, options) => {
   return new Promise((resolve, reject) => {
     const process = spawn(command, { ...options, shell: true });
 
@@ -24,8 +24,7 @@ const runCommand = (command, args, options) => {
   try {
     // Run npm install in the specified directory
     await runCommand(
-      'npm install --prefer-offline --no-audit --progress=false --omit=dev && \
-       npm install sqlite3 --prefer-offline --no-audit --progress=false --omit=dev',
+      'npm install --prefer-offline --no-audit --progress=false --omit=dev && npm install sqlite3 --prefer-offline --no-audit --progress=false --omit=dev',
       {
         cwd: path.join(__dirname, 'dist/nest-backend'),
         stdio: 'inherit',
