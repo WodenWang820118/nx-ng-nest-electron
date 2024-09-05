@@ -4,6 +4,7 @@ import { TaskService } from './task.service';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('TaskService', () => {
   let service: TaskService;
@@ -16,12 +17,16 @@ describe('TaskService', () => {
       .useMocker((token) => {
         if (token === getModelToken(Task)) {
           return {
-            create: jest.fn(),
-            findAll: jest.fn(),
-            findOne: jest.fn(),
-            update: jest.fn(),
-            destroy: jest.fn(),
+            create: vi.fn(),
+            findAll: vi.fn(),
+            findOne: vi.fn(),
+            update: vi.fn(),
+            destroy: vi.fn(),
           };
+        }
+
+        if (typeof token === 'function') {
+          return vi.fn();
         }
       })
       .compile();
