@@ -39,6 +39,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.nx/cache
 .angular
 .database.sqlite3
+*nx
