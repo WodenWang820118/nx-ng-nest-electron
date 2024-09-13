@@ -6,26 +6,26 @@ This is a sample Electron app powered by Angular, Nest, SQLite3, Electron, and N
 
 ## Development
 
-Please run `npm install` to install the required dependencies.
+Please run `pnpm install` to install the required dependencies.
 
 For local development, please run
 
 ```bash
-npm run dev-front
+pnpm run dev-front
 ```
 
 ```bash
-npm run dev-back
+pnpm run dev-back
 ```
 
 For local Electron development, please run
 
 ```bash
-npm run dev-back
+pnpm run dev-back
 ```
 
 ```bash
-npm run dev-electron
+pnpm run dev-electron
 ```
 
 ## Build
@@ -33,7 +33,7 @@ npm run dev-electron
 Please run
 
 ```bash
-npm run make
+pnpm run make
 ```
 
 The command generates a zip file and it's for Windows machine. Please change the settings in the `forge.config.js` to build the app according to the OS.
