@@ -50,23 +50,19 @@ function createWindow(env, resourcesPath) {
 
   try {
     const entryPath = pathUtils.getFrontendPath(env, resourcesPath);
-    fileUtils.writePath(
-      join(
-        pathUtils.getRootBackendFolderPath(env, resourcesPath),
-        'entryPath.txt'
-      ),
-      entryPath
+    fileUtils.logToFile(
+      join(pathUtils.getRootBackendFolderPath(env, resourcesPath)),
+      entryPath,
+      'info'
     );
     mainWindow.loadFile(entryPath);
     mainWindow.webContents.openDevTools(); // Open DevTools in development
   } catch (e) {
     console.error(e);
-    fileUtils.writePath(
-      join(
-        pathUtils.getRootBackendFolderPath(env, resourcesPath),
-        'entryPathError.txt'
-      ),
-      e.message
+    fileUtils.logToFile(
+      join(pathUtils.getRootBackendFolderPath(env, resourcesPath)),
+      e,
+      'error'
     );
   }
 }

@@ -1,6 +1,7 @@
 module.exports = {
   packagerConfig: {
     asar: true,
+    ignore: [/^\/node_modules/, /^\/dist\/(?!nest-backend)/],
     extraResource: [
       './dist/ng-tracker',
       './dist/nest-backend/main.js',

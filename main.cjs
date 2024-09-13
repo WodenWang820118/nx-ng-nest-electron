@@ -9,13 +9,23 @@ const constants = require('./main-process/constants.cjs');
 const fileUtils = require('./main-process/file-utils.cjs');
 
 let server;
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('use-gl', 'desktop');
 
 app.whenReady().then(async () => {
   server = backend.startBackend(process.resourcesPath);
   const loadingWindow = frontend.createLoadingWindow();
   server.once('spawn', async () => {
     try {
-      if (await backend.checkIfPortIsOpen(constants.URLs, 20, 2000)) {
+      if (
+        await backend.checkIfPortIsOpen(
+          constants.URLs,
+          20,
+          2000,
+          process.resourcesPath,
+          loadingWindow
+        )
+      ) {
         loadingWindow.close();
         frontend.createWindow(
           environmentUtils.getEnvironment(),
@@ -23,49 +33,59 @@ app.whenReady().then(async () => {
         );
       }
     } catch (error) {
-      console.error(error.message);
-      fileUtils.writePath(
+      console.error(error);
+      fileUtils.logToFile(
         join(
           pathUtils.getRootBackendFolderPath(
             environmentUtils.getEnvironment(),
             process.resourcesPath
-          ),
-          'portErrorLog.txt'
+          )
         ),
-        error.message
+        error,
+        'error'
       );
     }
   });
 
   server.on('message', (message) => {
     console.log(`Message from child: ${message}`);
-  });
-
-  server.on('error', (error) => {
-    console.error(`Error from child: ${error}`);
-    fileUtils.writePath(
+    fileUtils.logToFile(
       join(
         pathUtils.getRootBackendFolderPath(
           environmentUtils.getEnvironment(),
           process.resourcesPath
-        ),
-        'childErrorLog.txt'
+        )
       ),
-      error
+      message,
+      'info'
+    );
+  });
+
+  server.on('error', (error) => {
+    console.error(`Error from child: ${error}`);
+    fileUtils.logToFile(
+      join(
+        pathUtils.getRootBackendFolderPath(
+          environmentUtils.getEnvironment(),
+          process.resourcesPath
+        )
+      ),
+      error,
+      'error'
     );
   });
 
   server.on('exit', (code, signal) => {
     console.log(`Child exited with code ${code} and signal ${signal}`);
-    fileUtils.writePath(
+    fileUtils.logToFile(
       join(
         pathUtils.getRootBackendFolderPath(
           environmentUtils.getEnvironment(),
           process.resourcesPath
-        ),
-        'childExitLog.txt'
+        )
       ),
-      `Child exited with code ${code} and signal ${signal}`
+      `Child exited with code ${code} and signal ${signal}`,
+      'error'
     );
   });
 });
@@ -73,6 +93,16 @@ app.whenReady().then(async () => {
 app.on('before-quit', async () => {
   // Perform any necessary cleanup here
   console.log('App is about to quit. Performing cleanup...');
+  fileUtils.logToFile(
+    join(
+      pathUtils.getRootBackendFolderPath(
+        environmentUtils.getEnvironment(),
+        process.resourcesPath
+      )
+    ),
+    'App is about to quit. Performing cleanup...',
+    'info'
+  );
   if (server) {
     server.kill();
   }
