@@ -55,7 +55,11 @@ function startBackend(resourcesPath) {
     `Starting server with environment: ${JSON.stringify(env, null, 2)}`
   );
 
-  fileUtils.logToFile(rootBackendFolderPath, `Server path: ${serverPath}`);
+  fileUtils.logToFile(
+    rootBackendFolderPath,
+    `Server path: ${serverPath}`,
+    'info'
+  );
 
   // return utilityProcess.fork(serverPath, { env });
   return fork(serverPath, { env });
