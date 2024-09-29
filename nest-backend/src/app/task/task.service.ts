@@ -12,12 +12,10 @@ export class TaskService {
     private taskRepository: typeof Task
   ) {}
 
-  @Log('Create Task')
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
     return await this.taskRepository.create(createTaskDto as any);
   }
 
-  @Log('Find All Tasks')
   async findAll() {
     return await this.taskRepository.findAll();
   }
@@ -37,12 +35,10 @@ export class TaskService {
     );
   }
 
-  @Log('Remove Task')
   async remove(id: string) {
     return await this.taskRepository.destroy({ where: { id: id } });
   }
 
-  @Log('Remove Task By Name')
   async removeByName(name: string) {
     return await this.taskRepository.destroy({
       where: { title: name },
