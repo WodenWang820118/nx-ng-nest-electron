@@ -9,12 +9,14 @@ import {
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { Log } from '../logging-interceptor/logging-interceptor.service';
 
 @Controller('tasks')
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
-  @Get('')
+  @Get()
+  @Log('Find All Tasks')
   async getTasks() {
     return await this.taskService.findAll();
   }
