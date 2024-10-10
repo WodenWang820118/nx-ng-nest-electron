@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "main": "main.cjs",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WodenWang820118/nx-ng-nest-electron.git"
+  },
   "type": "module",
   "author": "Guan Xin Wang",
   "description": "An Electron application built Angular and Nest",
@@ -19,7 +23,10 @@
     "build-prod-back": "cross-env-shell NODE_ENV=prod PORT=5000 \"nx build nest-backend\"",
     "build-prod": "pnpm run build-prod-front && pnpm run build-prod-back && cd dist/nest-backend && npm install && npm install sqlite3 && cd ../..",
     "make": "cross-env-shell NODE_ENV=prod PORT=5000 \"pnpm run build-prod && electron-forge make\"",
-    "package": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge package\""
+    "package": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge package\"",
+    "publish-local": "electron-forge publish -- --from-dry-run",
+    "publish-dry": "electron-forge publish -- --dry-run",
+    "publish": "electron-forge publish"
   },
   "private": true,
   "devDependencies": {
@@ -46,6 +53,7 @@
     "@electron-forge/maker-squirrel": "^7.4.0",
     "@electron-forge/maker-zip": "^7.4.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/publisher-github": "^7.5.0",
     "@fortawesome/angular-fontawesome": "^0.15.0",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@nestjs/schematics": "^10.0.1",
@@ -100,6 +108,7 @@
     "@nestjs/sequelize": "^10.0.1",
     "@nestjs/swagger": "^7.3.1",
     "elec-ng-nest": "file:",
+    "electron-log": "^5.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~7.8.0",
     "sequelize": "^6.37.3",
