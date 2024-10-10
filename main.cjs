@@ -7,6 +7,11 @@ const backend = require('./main-process/backend.cjs');
 const frontend = require('./main-process/frontend.cjs');
 const constants = require('./main-process/constants.cjs');
 const fileUtils = require('./main-process/file-utils.cjs');
+const { updateElectronApp } = require('update-electron-app');
+updateElectronApp({
+  updateInterval: '1 hour',
+  logger: require('electron-log'),
+}); // additional configuration options available
 
 let server;
 app.commandLine.appendSwitch('disable-gpu');

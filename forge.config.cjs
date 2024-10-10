@@ -14,13 +14,25 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['win32'],
+      platforms: ['darwin', 'linux', 'win32'],
     },
   ],
   plugins: [
     {
       name: '@electron-forge/plugin-auto-unpack-natives',
       config: {},
+    },
+  ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'WodenWang820118',
+          name: 'nx-ng-nest-electron',
+        },
+        prerelease: true,
+      },
     },
   ],
 };
