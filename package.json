@@ -11,22 +11,22 @@
   "author": "Guan Xin Wang",
   "description": "An Electron application built Angular and Nest",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx only-allow bun",
     "dev-front": "nx serve ng-tracker",
     "dev-back": "cross-env-shell NODE_ENV=dev PORT=3000 \"nx serve nest-backend --watch\"",
     "prod-back": "cross-env-shell NODE_ENV=prod PORT=5000 \"nx serve nest-backend --watch\"",
-    "dev-electron": "cross-env-shell NODE_ENV=dev \"pnpm run build && electron-forge start\"",
+    "dev-electron": "cross-env-shell NODE_ENV=dev \"bun run build && electron-forge start\"",
     "build-front": "nx build ng-tracker --configuration=development --optimization --base-href ./",
     "build-back": "cross-env-shell NODE_ENV=dev PORT=3000 \"nx build nest-backend\"",
-    "build": "pnpm run build-front && pnpm run build-back",
+    "build": "bun run build-front && bun run build-back",
     "build-prod-front": "nx build ng-tracker --configuration production --optimization --base-href ./",
     "build-prod-back": "cross-env-shell NODE_ENV=prod PORT=5000 \"nx build nest-backend\"",
-    "build-prod": "pnpm run build-prod-front && pnpm run build-prod-back && cd dist/nest-backend && npm install && npm install sqlite3 && cd ../..",
-    "make": "cross-env-shell NODE_ENV=prod PORT=5000 \"pnpm run build-prod && electron-forge make\"",
-    "package": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge package\"",
-    "publish-local": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge publish -- --from-dry-run\"",
-    "publish-dry": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge publish -- --dry-run\"",
-    "publish": "cross-env-shell NODE_ENV=prod \"pnpm run build-prod && electron-forge publish\""
+    "build-prod": "bun run build-prod-front && bun run build-prod-back && cd dist/nest-backend && npm install && npm install sqlite3 && cd ../..",
+    "make": "cross-env-shell NODE_ENV=prod PORT=5000 \"bun run build-prod && electron-forge make\"",
+    "package": "cross-env-shell NODE_ENV=prod \"bun run build-prod && electron-forge package\"",
+    "publish-local": "cross-env-shell NODE_ENV=prod \"bun run build-prod && electron-forge publish -- --from-dry-run\"",
+    "publish-dry": "cross-env-shell NODE_ENV=prod \"bun run build-prod && electron-forge publish -- --dry-run\"",
+    "publish": "cross-env-shell NODE_ENV=prod \"bun run build-prod && electron-forge publish\""
   },
   "private": true,
   "devDependencies": {
@@ -116,5 +116,17 @@
     "tslib": "^2.3.0",
     "uuid": "^9.0.1"
   },
-  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
+  "packageManager": "bun@1.1.31",
+  "trustedDependencies": [
+    "@nestjs/core",
+    "@swc/core",
+    "elec-ng-nest",
+    "electron",
+    "electron-winstaller",
+    "esbuild",
+    "lmdb",
+    "msgpackr-extract",
+    "nx",
+    "sqlite3"
+  ]
 }
