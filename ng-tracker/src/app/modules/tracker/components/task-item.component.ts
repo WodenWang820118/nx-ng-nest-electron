@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Task } from '../../../interfaces/task.interface';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { NgClass, NgStyle } from '@angular/common';
 import { TaskService } from '../../../shared/services/task.service';
-import { take, tap } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-task-item',
@@ -13,21 +13,21 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   template: `
     <div
       data-test-id="task-card"
-      [ngClass]="{ reminder: task.reminder }"
+      [ngClass]="{ reminder: task().reminder }"
       class="task"
-      (dblclick)="toggleReminder(task)"
+      (dblclick)="toggleReminder(taskSignal())"
     >
       <h3>
-        {{ task.text }}
+        {{ task().text }}
         <fa-icon
           data-test-id="delete-task"
-          (click)="deleteTask(task)"
+          (click)="deleteTask(taskSignal())"
           [ngStyle]="{ color: 'red' }"
           [icon]="faTimes"
         >
         </fa-icon>
       </h3>
-      <p>{{ task.day }}</p>
+      <p>{{ task().day }}</p>
     </div>
   `,
   styles: [
@@ -50,26 +50,30 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskItemComponent {
-  @Input() task!: Task;
-  @Output() taskChanged = new EventEmitter<void>();
+  task = input.required<Task>();
+  taskChanged = output<void>();
   faTimes = faTimes;
+  taskSignal = computed(() => this.task());
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService) { }
 
   deleteTask(task: Task): void {
     this.taskService
       .deleteTask(task)
-      .pipe(
-        take(1),
-        tap(() => this.taskChanged.emit())
-      )
-      .subscribe();
+      .pipe(take(1))
+      .subscribe(() => {
+        this.taskChanged.emit();
+      });
   }
 
   toggleReminder(task: Task): void {
     task.reminder = !task.reminder;
-    this.taskService.udpateTaskReminder(task).pipe(take(1)).subscribe();
+    const updatedTask = { ...task, reminder: task.reminder };
+    this.taskService.updateTaskReminder(updatedTask).pipe(
+      take(1),
+    ).subscribe();
   }
 }

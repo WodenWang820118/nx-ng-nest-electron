@@ -13,7 +13,7 @@
         "outputPath": "dist/ng-tracker",
         "index": "ng-tracker/src/index.html",
         "browser": "ng-tracker/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [],
         "tsConfig": "ng-tracker/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": ["ng-tracker/src/favicon.ico", "ng-tracker/src/assets"],

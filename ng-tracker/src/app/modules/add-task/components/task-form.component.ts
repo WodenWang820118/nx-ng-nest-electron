@@ -4,6 +4,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService } from '../../../shared/services/task.service';
 import { v4 as uuidv4 } from 'uuid';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-task-form',
@@ -90,7 +91,7 @@ export class TaskFormComponent {
     private fb: FormBuilder,
     private router: Router,
     private taskService: TaskService
-  ) {}
+  ) { }
 
   cancelAddTask() {
     this.router.navigate(['/']);
@@ -102,20 +103,17 @@ export class TaskFormComponent {
       return;
     }
 
-    const newTask = {
+    const newTask: Task = {
       id: uuidv4(),
       text: this.taskForm.value.text,
       day: this.taskForm.value.day,
       reminder: this.taskForm.value.reminder || false,
     };
 
-    this.taskService.addTask(newTask).subscribe(
-      (task: Task) => {
+    this.taskService.addTask(newTask).pipe(
+      tap(() => {
         this.router.navigate(['/']);
-      },
-      (error) => {
-        console.error('Error adding task:', error);
-      }
-    );
+      })
+    ).subscribe();
   }
 }
