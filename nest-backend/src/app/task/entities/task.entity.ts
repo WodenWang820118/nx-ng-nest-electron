@@ -25,7 +25,7 @@ export class Task extends Model {
   })
   declare day: string;
   @Column({
-    type: DataType.STRING,
+    type: DataType.BOOLEAN,
     allowNull: false,
   })
   declare reminder: boolean;
