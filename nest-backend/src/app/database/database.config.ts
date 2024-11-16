@@ -6,18 +6,18 @@ import { SequelizeOptions } from 'sequelize-typescript';
 const DATABASE_NAME = 'database.sqlite3';
 
 function getDatabasePath() {
-  let databasePath: string;
+  const defaultDatabasePath = join(cwd(), DATABASE_NAME);
   switch (process.env.NODE_ENV) {
     case 'dev':
     case 'staging':
-      databasePath = join(cwd(), DATABASE_NAME);
-      break;
+      return defaultDatabasePath;
     case 'prod':
     default:
-      databasePath = join(process.env.DATABASE_PATH);
-      break;
+      if (process.env.DATABASE_PATH) {
+        return process.env.DATABASE_PATH;
+      }
+      return defaultDatabasePath;
   }
-  return databasePath;
 }
 
 function getDatabaseConfig(): Partial<
