@@ -1,8 +1,7 @@
-'use strict';
-const { appendFileSync } = require('fs');
-const { join } = require('path');
+import { appendFileSync } from 'fs';
+import { join } from 'path';
 
-function logToFile(path, message, type = 'info') {
+function logToFile(path: string, message: string, type = 'info') {
   const logPath = join(path, `${type}.log`);
   const timestamp = new Date().toISOString();
   const logMessage = `${timestamp} - ${type.toUpperCase()}: ${message}\n`;
@@ -14,6 +13,6 @@ function logToFile(path, message, type = 'info') {
   }
 }
 
-module.exports = {
+export {
   logToFile,
 };

@@ -1,51 +1,58 @@
-'use strict';
-// const { utilityProcess } = require('electron');
-const { fork } = require('child_process');
-const { join } = require('path');
-const constants = require('./constants.cjs');
-const environmentUtils = require('./environment-utils.cjs');
-const fileUtils = require('./file-utils.cjs');
-const pathUtils = require('./path-utils.cjs');
+import { fork } from 'child_process';
+import { join } from 'path';
+import { BrowserWindow } from 'electron';
+import * as constants from './constants';
+import * as environmentUtils from './environment-utils';
+import * as fileUtils from './file-utils';
+import * as pathUtils from './path-utils';
 
-function startBackend(resourcesPath) {
+function startBackend(resourcesPath: string) {
   let env;
   const rootBackendFolderPath = pathUtils.getRootBackendFolderPath(
     environmentUtils.getEnvironment(),
     resourcesPath
   );
-  fileUtils.logToFile(rootBackendFolderPath, `Starting server`, 'info');
+
+  fileUtils.logToFile(
+    rootBackendFolderPath,
+    'Starting backend service...',
+    'info'
+  );
+
   const serverPath = join(rootBackendFolderPath, 'main.js');
+
   const databasePath = join(
     rootBackendFolderPath,
     constants.ROOT_DATABASE_NAME
   );
+
   switch (environmentUtils.getEnvironment()) {
     case 'dev':
       env = {
-        NODE_ENV: 'dev',
         DATABASE_PATH: databasePath,
         PORT: 3000,
+        NODE_ENV: 'dev',
       };
       break;
     case 'staging':
       env = {
-        NODE_ENV: 'staging',
         DATABASE_PATH: databasePath,
         PORT: 3000,
+        NODE_ENV: 'staging',
       };
       break;
     case 'prod':
       env = {
-        NODE_ENV: 'prod',
         DATABASE_PATH: databasePath,
         PORT: 5000,
+        NODE_ENV: 'prod',
       };
       break;
     default:
       env = {
-        NODE_ENV: 'prod',
         DATABASE_PATH: databasePath,
         PORT: 5000,
+        NODE_ENV: 'prod',
       };
       break;
   }
@@ -61,16 +68,15 @@ function startBackend(resourcesPath) {
     'info'
   );
 
-  // return utilityProcess.fork(serverPath, { env });
   return fork(serverPath, { env });
 }
 
 async function checkIfPortIsOpen(
-  urls,
+  urls: string[],
   maxAttempts = 20,
   timeout = 1000,
-  resourcesPath,
-  loadingWindow
+  resourcesPath: string,
+  loadingWindow: BrowserWindow | null
 ) {
   const logFilePath = join(
     pathUtils.getRootBackendFolderPath(
@@ -78,18 +84,25 @@ async function checkIfPortIsOpen(
       resourcesPath
     )
   );
+
   await new Promise((resolve) => setTimeout(resolve, 5000)); // await the backend to start
-  fileUtils.logToFile(logFilePath, `Checking if port is open`, 'info');
+  fileUtils.logToFile(
+    logFilePath,
+    `Checking if ports are open: ${urls}`,
+    'info'
+  );
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     for (const url of urls) {
       try {
+        fileUtils.logToFile(
+          logFilePath,
+          `Attempt ${attempt}: Checking port: ${url}`,
+          'info'
+        );
+
         const response = await fetch(url);
 
         console.log('Response status:', response.status);
-        console.log(
-          'Response headers:',
-          JSON.stringify(Object.fromEntries(response.headers), null, 2)
-        );
 
         const responseData = await response.text();
         console.log('Response body:', responseData);
@@ -116,11 +129,6 @@ async function checkIfPortIsOpen(
         console.error(`Attempt ${attempt}: Error connecting to ${url}:`, error);
         fileUtils.logToFile(
           logFilePath,
-          `Attempt ${attempt}: Error connecting to ${url}: ${error.toString()}`,
-          'error'
-        );
-        fileUtils.logToFile(
-          logFilePath,
           `Attempt ${attempt}: ${error.toString()}`,
           'error'
         );
@@ -133,13 +141,13 @@ async function checkIfPortIsOpen(
     }
   }
 
-  loadingWindow.close();
+  loadingWindow?.close();
   throw new Error(
     `Failed to connect to the server after ${maxAttempts} attempts`
   );
 }
 
-module.exports = {
+export {
   startBackend,
   checkIfPortIsOpen,
 };
