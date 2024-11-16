@@ -1,19 +1,21 @@
-'use strict';
-const { app, BrowserWindow } = require('electron');
-const { join } = require('path');
-const pathUtils = require('./main-process/path-utils.cjs');
-const environmentUtils = require('./main-process/environment-utils.cjs');
-const backend = require('./main-process/backend.cjs');
-const frontend = require('./main-process/frontend.cjs');
-const constants = require('./main-process/constants.cjs');
-const fileUtils = require('./main-process/file-utils.cjs');
-const { updateElectronApp } = require('update-electron-app');
+
+import { app, BrowserWindow } from 'electron';
+import { join } from 'path';
+import { updateElectronApp } from 'update-electron-app';
+import { ChildProcess } from 'child_process';
+import * as pathUtils from './path-utils';
+import * as environmentUtils from './environment-utils';
+import * as backend from './backend';
+import * as frontend from './frontend';
+import * as constants from './constants';
+import * as fileUtils from './file-utils';
+
 updateElectronApp({
   updateInterval: '1 hour',
   logger: require('electron-log'),
 }); // additional configuration options available
 
-let server;
+let server: ChildProcess;
 app.commandLine.appendSwitch('disable-gpu');
 app.commandLine.appendSwitch('use-gl', 'desktop');
 
@@ -31,9 +33,8 @@ app.whenReady().then(async () => {
           loadingWindow
         )
       ) {
-        loadingWindow.close();
+        loadingWindow?.close();
         frontend.createWindow(
-          environmentUtils.getEnvironment(),
           process.resourcesPath
         );
       }
@@ -52,7 +53,7 @@ app.whenReady().then(async () => {
     }
   });
 
-  server.on('message', (message) => {
+  server.on('message', (message: string) => {
     console.log(`Message from child: ${message}`);
     fileUtils.logToFile(
       join(
@@ -66,7 +67,7 @@ app.whenReady().then(async () => {
     );
   });
 
-  server.on('error', (error) => {
+  server.on('error', (error: string) => {
     console.error(`Error from child: ${error}`);
     fileUtils.logToFile(
       join(
@@ -80,7 +81,7 @@ app.whenReady().then(async () => {
     );
   });
 
-  server.on('exit', (code, signal) => {
+  server.on('exit', (code: any, signal: any) => {
     console.log(`Child exited with code ${code} and signal ${signal}`);
     fileUtils.logToFile(
       join(
