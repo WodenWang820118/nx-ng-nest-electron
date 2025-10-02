@@ -6,10 +6,12 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Log } from '../logging-interceptor/logging-interceptor.service';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Controller('tasks')
 export class TaskController {
@@ -17,8 +19,8 @@ export class TaskController {
 
   @Get()
   @Log('Find All Tasks')
-  async getTasks() {
-    return await this.taskService.findAll();
+  async getTasks(@Query() query: PaginationQueryDto) {
+    return await this.taskService.findAll(query);
   }
 
   @Get(':id')

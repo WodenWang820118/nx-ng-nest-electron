@@ -12,6 +12,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const lazyModuleLoader = app.get(LazyModuleLoader);
   const { TaskModule } = await import('./app/task/task.module');
+  const { HealthModule } = await import('./app/health/health.module');
+  await lazyModuleLoader.load(() => HealthModule);
   await lazyModuleLoader.load(() => TaskModule);
   app.enableCors();
   const port = process.env.PORT || 3000;

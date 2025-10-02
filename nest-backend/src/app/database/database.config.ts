@@ -1,7 +1,7 @@
-import { SequelizeModuleOptions } from '@nestjs/sequelize';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { cwd } from 'process';
-import { SequelizeOptions } from 'sequelize-typescript';
+import { Task } from '../task/entities/task.entity';
 
 const DATABASE_NAME = 'database.sqlite3';
 
@@ -20,22 +20,14 @@ function getDatabasePath() {
   }
 }
 
-function getDatabaseConfig(): Partial<
-  {
-    name?: string;
-    retryAttempts?: number;
-    retryDelay?: number;
-    autoLoadModels?: boolean;
-    synchronize?: boolean;
-    uri?: string;
-  } & Partial<SequelizeOptions>
-> {
+function getDatabaseConfig(): TypeOrmModuleOptions {
   return {
-    dialect: 'sqlite',
-    storage: getDatabasePath(),
-    autoLoadModels: true,
-    synchronize: true,
+    type: 'sqlite',
+    database: getDatabasePath(),
+    entities: [Task],
+    synchronize: true, // Set to false in production
+    logging: process.env.NODE_ENV === 'dev',
   };
 }
 
-export const dataBaseConfig: SequelizeModuleOptions = getDatabaseConfig();
+export const dataBaseConfig: TypeOrmModuleOptions = getDatabaseConfig();

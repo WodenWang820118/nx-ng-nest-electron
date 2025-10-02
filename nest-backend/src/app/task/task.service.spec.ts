@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/sequelize';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { TaskService } from './task.service';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -15,13 +15,15 @@ describe('TaskService', () => {
       providers: [TaskService],
     })
       .useMocker((token) => {
-        if (token === getModelToken(Task)) {
+        if (token === getRepositoryToken(Task)) {
           return {
             create: vi.fn(),
-            findAll: vi.fn(),
+            save: vi.fn(),
+            find: vi.fn(),
+            findAndCount: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
-            destroy: vi.fn(),
+            delete: vi.fn(),
           };
         }
 
@@ -31,7 +33,7 @@ describe('TaskService', () => {
       })
       .compile();
     service = module.get<TaskService>(TaskService);
-    mockTaskRepository = module.get(getModelToken(Task));
+    mockTaskRepository = module.get(getRepositoryToken(Task));
   });
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -44,20 +46,23 @@ describe('TaskService', () => {
       reminder: true,
     };
     const expectedResult = { id: '1', ...createTaskDto };
-    mockTaskRepository.create.mockResolvedValue(expectedResult);
+    mockTaskRepository.create.mockReturnValue(createTaskDto);
+    mockTaskRepository.save.mockResolvedValue(expectedResult);
     const result = await service.create(createTaskDto);
     expect(mockTaskRepository.create).toHaveBeenCalledWith(createTaskDto);
+    expect(mockTaskRepository.save).toHaveBeenCalledWith(createTaskDto);
     expect(result).toEqual(expectedResult);
   });
-  it('should return an array of tasks', async () => {
-    const expectedResult = [
+  it('should return a paginated result of tasks', async () => {
+    const expectedTasks = [
       { id: '1', text: 'Task 1', day: '2023-07-31', reminder: true },
       { id: '2', text: 'Task 2', day: '2023-08-01', reminder: false },
     ];
-    mockTaskRepository.findAll.mockResolvedValue(expectedResult);
+    mockTaskRepository.findAndCount.mockResolvedValue([expectedTasks, 2]);
     const result = await service.findAll();
-    expect(mockTaskRepository.findAll).toHaveBeenCalled();
-    expect(result).toEqual(expectedResult);
+    expect(mockTaskRepository.findAndCount).toHaveBeenCalled();
+    expect(result.data).toEqual(expectedTasks);
+    expect(result.total).toBe(2);
   });
   it('should return a task by id', async () => {
     const id = '1';
@@ -79,35 +84,31 @@ describe('TaskService', () => {
       day: '2023-08-01',
       reminder: false,
     };
-    const expectedResult = [1]; // Sequelize update returns affected rows count
-    mockTaskRepository.update.mockResolvedValue(expectedResult);
+    const updatedTask = { id, ...updateTaskDto };
+    mockTaskRepository.update.mockResolvedValue({ affected: 1 });
+    mockTaskRepository.findOne.mockResolvedValue(updatedTask);
     const result = await service.update(id, updateTaskDto);
-    expect(mockTaskRepository.update).toHaveBeenCalledWith(
-      {
-        text: updateTaskDto.text,
-        day: updateTaskDto.day,
-        reminder: updateTaskDto.reminder,
-      },
-      { where: { id } }
-    );
-    expect(result).toEqual(expectedResult);
+    expect(mockTaskRepository.update).toHaveBeenCalledWith(id, {
+      text: updateTaskDto.text,
+      day: updateTaskDto.day,
+      reminder: updateTaskDto.reminder,
+    });
+    expect(result).toEqual(updatedTask);
   });
   it('should remove a task by id', async () => {
     const id = '1';
-    const expectedResult = 1; // Sequelize destroy returns affected rows count
-    mockTaskRepository.destroy.mockResolvedValue(expectedResult);
+    const expectedResult = { affected: 1 };
+    mockTaskRepository.delete.mockResolvedValue(expectedResult);
     const result = await service.remove(id);
-    expect(mockTaskRepository.destroy).toHaveBeenCalledWith({ where: { id } });
-    expect(result).toEqual(expectedResult);
+    expect(mockTaskRepository.delete).toHaveBeenCalledWith(id);
+    expect(result).toEqual(1);
   });
   it('should remove a task by name', async () => {
     const name = 'Test task';
-    const expectedResult = 1; // Sequelize destroy returns affected rows count
-    mockTaskRepository.destroy.mockResolvedValue(expectedResult);
+    const expectedResult = { affected: 1 };
+    mockTaskRepository.delete.mockResolvedValue(expectedResult);
     const result = await service.removeByName(name);
-    expect(mockTaskRepository.destroy).toHaveBeenCalledWith({
-      where: { title: name },
-    });
-    expect(result).toEqual(expectedResult);
+    expect(mockTaskRepository.delete).toHaveBeenCalledWith({ text: name });
+    expect(result).toEqual(1);
   });
 });
