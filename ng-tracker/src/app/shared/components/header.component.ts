@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AsyncPipe, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [NgIf, AsyncPipe, RouterLink],
+  imports: [RouterLink],
   template: `
     <header>
       <h1>{{ title }}</h1>

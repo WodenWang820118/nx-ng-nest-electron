@@ -56,8 +56,6 @@
     "@electron-forge/plugin-vite": "^7.5.0",
     "@electron-forge/publisher-github": "^7.5.0",
     "@electron-forge/shared-types": "^7.5.0",
-    "@fortawesome/angular-fontawesome": "^0.15.0",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@nestjs/schematics": "11.0.0",
     "@nestjs/testing": "^10.0.2",
     "@nx/angular": "21.6.2",
