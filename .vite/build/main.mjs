@@ -1,874 +1,579 @@
-import require$$7, { BrowserWindow, app } from "electron";
-import require$$2$1, { join } from "path";
-import require$$2 from "node:assert";
-import require$$3 from "node:fs";
-import require$$4 from "node:os";
-import require$$5 from "node:path";
-import require$$6 from "node:util";
-import require$$0$1, { fork } from "child_process";
-import require$$1 from "os";
-import require$$0, { appendFileSync, existsSync } from "fs";
-import require$$0$2 from "util";
-import require$$0$3 from "events";
-import require$$0$4 from "http";
-import require$$1$1 from "https";
-import { cwd } from "process";
-function getDefaultExportFromCjs(x) {
-  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
+import st, { BrowserWindow as Ae, app as T } from "electron";
+import k, { join as P } from "path";
+import ht from "node:assert";
+import dt from "node:fs";
+import gt from "node:os";
+import mt from "node:path";
+import yt from "node:util";
+import vt, { fork as bt } from "child_process";
+import W from "os";
+import I, { appendFileSync as wt, existsSync as St } from "fs";
+import Et from "util";
+import it from "events";
+import At from "http";
+import _t from "https";
+import { cwd as Ee } from "process";
+function Ot(u) {
+  return u && u.__esModule && Object.prototype.hasOwnProperty.call(u, "default") ? u.default : u;
 }
-var dist = {};
-var ms;
-var hasRequiredMs;
-function requireMs() {
-  if (hasRequiredMs) return ms;
-  hasRequiredMs = 1;
-  var s = 1e3;
-  var m = s * 60;
-  var h = m * 60;
-  var d = h * 24;
-  var w = d * 7;
-  var y = d * 365.25;
-  ms = function(val, options) {
-    options = options || {};
-    var type = typeof val;
-    if (type === "string" && val.length > 0) {
-      return parse(val);
-    } else if (type === "number" && isFinite(val)) {
-      return options.long ? fmtLong(val) : fmtShort(val);
-    }
+var x = {}, B, Le;
+function Lt() {
+  if (Le) return B;
+  Le = 1;
+  var u = 1e3, c = u * 60, s = c * 60, i = s * 24, e = i * 7, r = i * 365.25;
+  B = function(l, p) {
+    p = p || {};
+    var f = typeof l;
+    if (f === "string" && l.length > 0)
+      return t(l);
+    if (f === "number" && isFinite(l))
+      return p.long ? o(l) : n(l);
     throw new Error(
-      "val is not a non-empty string or a valid number. val=" + JSON.stringify(val)
+      "val is not a non-empty string or a valid number. val=" + JSON.stringify(l)
     );
   };
-  function parse(str) {
-    str = String(str);
-    if (str.length > 100) {
-      return;
-    }
-    var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
-      str
-    );
-    if (!match) {
-      return;
-    }
-    var n = parseFloat(match[1]);
-    var type = (match[2] || "ms").toLowerCase();
-    switch (type) {
-      case "years":
-      case "year":
-      case "yrs":
-      case "yr":
-      case "y":
-        return n * y;
-      case "weeks":
-      case "week":
-      case "w":
-        return n * w;
-      case "days":
-      case "day":
-      case "d":
-        return n * d;
-      case "hours":
-      case "hour":
-      case "hrs":
-      case "hr":
-      case "h":
-        return n * h;
-      case "minutes":
-      case "minute":
-      case "mins":
-      case "min":
-      case "m":
-        return n * m;
-      case "seconds":
-      case "second":
-      case "secs":
-      case "sec":
-      case "s":
-        return n * s;
-      case "milliseconds":
-      case "millisecond":
-      case "msecs":
-      case "msec":
-      case "ms":
-        return n;
-      default:
-        return void 0;
+  function t(l) {
+    if (l = String(l), !(l.length > 100)) {
+      var p = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+        l
+      );
+      if (p) {
+        var f = parseFloat(p[1]), h = (p[2] || "ms").toLowerCase();
+        switch (h) {
+          case "years":
+          case "year":
+          case "yrs":
+          case "yr":
+          case "y":
+            return f * r;
+          case "weeks":
+          case "week":
+          case "w":
+            return f * e;
+          case "days":
+          case "day":
+          case "d":
+            return f * i;
+          case "hours":
+          case "hour":
+          case "hrs":
+          case "hr":
+          case "h":
+            return f * s;
+          case "minutes":
+          case "minute":
+          case "mins":
+          case "min":
+          case "m":
+            return f * c;
+          case "seconds":
+          case "second":
+          case "secs":
+          case "sec":
+          case "s":
+            return f * u;
+          case "milliseconds":
+          case "millisecond":
+          case "msecs":
+          case "msec":
+          case "ms":
+            return f;
+          default:
+            return;
+        }
+      }
     }
   }
-  function fmtShort(ms2) {
-    var msAbs = Math.abs(ms2);
-    if (msAbs >= d) {
-      return Math.round(ms2 / d) + "d";
-    }
-    if (msAbs >= h) {
-      return Math.round(ms2 / h) + "h";
-    }
-    if (msAbs >= m) {
-      return Math.round(ms2 / m) + "m";
-    }
-    if (msAbs >= s) {
-      return Math.round(ms2 / s) + "s";
-    }
-    return ms2 + "ms";
+  function n(l) {
+    var p = Math.abs(l);
+    return p >= i ? Math.round(l / i) + "d" : p >= s ? Math.round(l / s) + "h" : p >= c ? Math.round(l / c) + "m" : p >= u ? Math.round(l / u) + "s" : l + "ms";
   }
-  function fmtLong(ms2) {
-    var msAbs = Math.abs(ms2);
-    if (msAbs >= d) {
-      return plural(ms2, msAbs, d, "day");
-    }
-    if (msAbs >= h) {
-      return plural(ms2, msAbs, h, "hour");
-    }
-    if (msAbs >= m) {
-      return plural(ms2, msAbs, m, "minute");
-    }
-    if (msAbs >= s) {
-      return plural(ms2, msAbs, s, "second");
-    }
-    return ms2 + " ms";
+  function o(l) {
+    var p = Math.abs(l);
+    return p >= i ? a(l, p, i, "day") : p >= s ? a(l, p, s, "hour") : p >= c ? a(l, p, c, "minute") : p >= u ? a(l, p, u, "second") : l + " ms";
   }
-  function plural(ms2, msAbs, n, name2) {
-    var isPlural = msAbs >= n * 1.5;
-    return Math.round(ms2 / n) + " " + name2 + (isPlural ? "s" : "");
+  function a(l, p, f, h) {
+    var S = p >= f * 1.5;
+    return Math.round(l / f) + " " + h + (S ? "s" : "");
   }
-  return ms;
+  return B;
 }
-var isUrl_1;
-var hasRequiredIsUrl;
-function requireIsUrl() {
-  if (hasRequiredIsUrl) return isUrl_1;
-  hasRequiredIsUrl = 1;
-  isUrl_1 = isUrl;
-  var protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
-  var localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
-  var nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
-  function isUrl(string) {
-    if (typeof string !== "string") {
-      return false;
-    }
-    var match = string.match(protocolAndDomainRE);
-    if (!match) {
-      return false;
-    }
-    var everythingAfterProtocol = match[1];
-    if (!everythingAfterProtocol) {
-      return false;
-    }
-    if (localhostDomainRE.test(everythingAfterProtocol) || nonLocalhostDomainRE.test(everythingAfterProtocol)) {
-      return true;
-    }
-    return false;
+var J, Pe;
+function Pt() {
+  if (Pe) return J;
+  Pe = 1, J = i;
+  var u = /^(?:\w+:)?\/\/(\S+)$/, c = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/, s = /^[^\s\.]+\.\S{2,}$/;
+  function i(e) {
+    if (typeof e != "string")
+      return !1;
+    var r = e.match(u);
+    if (!r)
+      return !1;
+    var t = r[1];
+    return t ? !!(c.test(t) || s.test(t)) : !1;
   }
-  return isUrl_1;
+  return J;
 }
-var commonjs;
-var hasRequiredCommonjs;
-function requireCommonjs() {
-  if (hasRequiredCommonjs) return commonjs;
-  hasRequiredCommonjs = 1;
-  var isUrl = requireIsUrl();
-  var laxUrlRegex = /(?:(?:[^:]+:)?[/][/])?(?:.+@)?([^/]+)([/][^?#]+)/;
-  commonjs = function(repoUrl, opts) {
-    var obj = {};
-    opts = opts || {};
-    if (!repoUrl) {
+var V, $e;
+function $t() {
+  if ($e) return V;
+  $e = 1;
+  var u = Pt(), c = /(?:(?:[^:]+:)?[/][/])?(?:.+@)?([^/]+)([/][^?#]+)/;
+  return V = function(s, i) {
+    var e = {};
+    if (i = i || {}, !s || (s.url && (s = s.url), typeof s != "string"))
       return null;
-    }
-    if (repoUrl.url) {
-      repoUrl = repoUrl.url;
-    }
-    if (typeof repoUrl !== "string") {
-      return null;
-    }
-    var shorthand = repoUrl.match(/^([\w-_]+)\/([\w-_\.]+)(?:#([\w-_\.]+))?$/);
-    var mediumhand = repoUrl.match(/^github:([\w-_]+)\/([\w-_\.]+)(?:#([\w-_\.]+))?$/);
-    var antiquated = repoUrl.match(/^git@[\w-_\.]+:([\w-_]+)\/([\w-_\.]+)$/);
-    if (shorthand) {
-      obj.user = shorthand[1];
-      obj.repo = shorthand[2];
-      obj.branch = shorthand[3] || "master";
-      obj.host = "github.com";
-    } else if (mediumhand) {
-      obj.user = mediumhand[1];
-      obj.repo = mediumhand[2];
-      obj.branch = mediumhand[3] || "master";
-      obj.host = "github.com";
-    } else if (antiquated) {
-      obj.user = antiquated[1];
-      obj.repo = antiquated[2].replace(/\.git$/i, "");
-      obj.branch = "master";
-      obj.host = "github.com";
-    } else {
-      repoUrl = repoUrl.replace(/^git\+/, "");
-      if (!isUrl(repoUrl)) {
+    var r = s.match(/^([\w-_]+)\/([\w-_\.]+)(?:#([\w-_\.]+))?$/), t = s.match(/^github:([\w-_]+)\/([\w-_\.]+)(?:#([\w-_\.]+))?$/), n = s.match(/^git@[\w-_\.]+:([\w-_]+)\/([\w-_\.]+)$/);
+    if (r)
+      e.user = r[1], e.repo = r[2], e.branch = r[3] || "master", e.host = "github.com";
+    else if (t)
+      e.user = t[1], e.repo = t[2], e.branch = t[3] || "master", e.host = "github.com";
+    else if (n)
+      e.user = n[1], e.repo = n[2].replace(/\.git$/i, ""), e.branch = "master", e.host = "github.com";
+    else {
+      if (s = s.replace(/^git\+/, ""), !u(s))
         return null;
-      }
-      var ref = repoUrl.match(laxUrlRegex) || [];
-      var hostname = ref[1];
-      var pathname = ref[2];
-      if (!hostname) {
+      var o = s.match(c) || [], a = o[1], l = o[2];
+      if (!a || a !== "github.com" && a !== "www.github.com" && !i.enterprise)
         return null;
-      }
-      if (hostname !== "github.com" && hostname !== "www.github.com" && !opts.enterprise) {
+      var p = l.match(/^\/([\w-_]+)\/([\w-_\.]+)(\/tree\/[\%\w-_\.\/]+)?(\/blob\/[\%\w-_\.\/]+)?/);
+      if (!p)
         return null;
-      }
-      var parts = pathname.match(/^\/([\w-_]+)\/([\w-_\.]+)(\/tree\/[\%\w-_\.\/]+)?(\/blob\/[\%\w-_\.\/]+)?/);
-      if (!parts) {
-        return null;
-      }
-      obj.user = parts[1];
-      obj.repo = parts[2].replace(/\.git$/i, "");
-      obj.host = hostname || "github.com";
-      if (parts[3] && /^\/tree\/master\//.test(parts[3])) {
-        obj.branch = "master";
-        obj.path = parts[3].replace(/\/$/, "");
-      } else if (parts[3]) {
-        var branchMatch = parts[3].replace(/^\/tree\//, "").match(/[\%\w-_.]*\/?[\%\w-_]+/);
-        obj.branch = branchMatch && branchMatch[0];
-      } else if (parts[4]) {
-        var branchMatch = parts[4].replace(/^\/blob\//, "").match(/[\%\w-_.]*\/?[\%\w-_]+/);
-        obj.branch = branchMatch && branchMatch[0];
-      } else {
-        obj.branch = "master";
-      }
+      if (e.user = p[1], e.repo = p[2].replace(/\.git$/i, ""), e.host = a || "github.com", p[3] && /^\/tree\/master\//.test(p[3]))
+        e.branch = "master", e.path = p[3].replace(/\/$/, "");
+      else if (p[3]) {
+        var f = p[3].replace(/^\/tree\//, "").match(/[\%\w-_.]*\/?[\%\w-_]+/);
+        e.branch = f && f[0];
+      } else if (p[4]) {
+        var f = p[4].replace(/^\/blob\//, "").match(/[\%\w-_.]*\/?[\%\w-_]+/);
+        e.branch = f && f[0];
+      } else
+        e.branch = "master";
     }
-    if (obj.host === "github.com") {
-      obj.apiHost = "api.github.com";
-    } else {
-      obj.apiHost = obj.host + "/api/v3";
-    }
-    obj.tarball_url = "https://" + obj.apiHost + "/repos/" + obj.user + "/" + obj.repo + "/tarball/" + obj.branch;
-    obj.clone_url = "https://" + obj.host + "/" + obj.user + "/" + obj.repo;
-    if (obj.branch === "master") {
-      obj.https_url = "https://" + obj.host + "/" + obj.user + "/" + obj.repo;
-      obj.travis_url = "https://travis-ci.org/" + obj.user + "/" + obj.repo;
-      obj.zip_url = "https://" + obj.host + "/" + obj.user + "/" + obj.repo + "/archive/master.zip";
-    } else {
-      obj.https_url = "https://" + obj.host + "/" + obj.user + "/" + obj.repo + "/blob/" + obj.branch;
-      obj.travis_url = "https://travis-ci.org/" + obj.user + "/" + obj.repo + "?branch=" + obj.branch;
-      obj.zip_url = "https://" + obj.host + "/" + obj.user + "/" + obj.repo + "/archive/" + obj.branch + ".zip";
-    }
-    if (obj.path) {
-      obj.https_url += obj.path;
-    }
-    obj.api_url = "https://" + obj.apiHost + "/repos/" + obj.user + "/" + obj.repo;
-    return obj;
-  };
-  return commonjs;
+    return e.host === "github.com" ? e.apiHost = "api.github.com" : e.apiHost = e.host + "/api/v3", e.tarball_url = "https://" + e.apiHost + "/repos/" + e.user + "/" + e.repo + "/tarball/" + e.branch, e.clone_url = "https://" + e.host + "/" + e.user + "/" + e.repo, e.branch === "master" ? (e.https_url = "https://" + e.host + "/" + e.user + "/" + e.repo, e.travis_url = "https://travis-ci.org/" + e.user + "/" + e.repo, e.zip_url = "https://" + e.host + "/" + e.user + "/" + e.repo + "/archive/master.zip") : (e.https_url = "https://" + e.host + "/" + e.user + "/" + e.repo + "/blob/" + e.branch, e.travis_url = "https://travis-ci.org/" + e.user + "/" + e.repo + "?branch=" + e.branch, e.zip_url = "https://" + e.host + "/" + e.user + "/" + e.repo + "/archive/" + e.branch + ".zip"), e.path && (e.https_url += e.path), e.api_url = "https://" + e.apiHost + "/repos/" + e.user + "/" + e.repo, e;
+  }, V;
 }
-const name = "update-electron-app";
-const version = "3.1.1";
-const require$$8 = {
-  name,
-  version
+const Ft = "update-electron-app", xt = "3.1.1", Dt = {
+  name: Ft,
+  version: xt
 };
-var hasRequiredDist;
-function requireDist() {
-  if (hasRequiredDist) return dist;
-  hasRequiredDist = 1;
-  var __importDefault = dist && dist.__importDefault || function(mod) {
-    return mod && mod.__esModule ? mod : { "default": mod };
+var Fe;
+function Rt() {
+  if (Fe) return x;
+  Fe = 1;
+  var u = x && x.__importDefault || function(d) {
+    return d && d.__esModule ? d : { default: d };
   };
-  Object.defineProperty(dist, "__esModule", { value: true });
-  dist.UpdateSourceType = void 0;
-  dist.updateElectronApp = updateElectronApp;
-  dist.makeUserNotifier = makeUserNotifier;
-  const ms_1 = __importDefault(requireMs());
-  const github_url_to_object_1 = __importDefault(requireCommonjs());
-  const node_assert_1 = __importDefault(require$$2);
-  const node_fs_1 = __importDefault(require$$3);
-  const node_os_1 = __importDefault(require$$4);
-  const node_path_1 = __importDefault(require$$5);
-  const node_util_1 = require$$6;
-  const electron_1 = require$$7;
-  var UpdateSourceType;
-  (function(UpdateSourceType2) {
-    UpdateSourceType2[UpdateSourceType2["ElectronPublicUpdateService"] = 0] = "ElectronPublicUpdateService";
-    UpdateSourceType2[UpdateSourceType2["StaticStorage"] = 1] = "StaticStorage";
-  })(UpdateSourceType || (dist.UpdateSourceType = UpdateSourceType = {}));
-  const pkg = require$$8;
-  const userAgent = (0, node_util_1.format)("%s/%s (%s: %s)", pkg.name, pkg.version, node_os_1.default.platform(), node_os_1.default.arch());
-  const supportedPlatforms = ["darwin", "win32"];
-  const isHttpsUrl = (maybeURL) => {
+  Object.defineProperty(x, "__esModule", { value: !0 }), x.UpdateSourceType = void 0, x.updateElectronApp = S, x.makeUserNotifier = g;
+  const c = u(Lt()), s = u($t()), i = u(ht), e = u(dt), r = u(gt), t = u(mt), n = yt, o = st;
+  var a;
+  (function(d) {
+    d[d.ElectronPublicUpdateService = 0] = "ElectronPublicUpdateService", d[d.StaticStorage = 1] = "StaticStorage";
+  })(a || (x.UpdateSourceType = a = {}));
+  const l = Dt, p = (0, n.format)("%s/%s (%s: %s)", l.name, l.version, r.default.platform(), r.default.arch()), f = ["darwin", "win32"], h = (d) => {
     try {
-      const { protocol } = new URL(maybeURL);
-      return protocol === "https:";
-    } catch (_a) {
-      return false;
+      const { protocol: E } = new URL(d);
+      return E === "https:";
+    } catch {
+      return !1;
     }
   };
-  function updateElectronApp(opts = {}) {
-    const safeOpts = validateInput(opts);
-    if (!electron_1.app.isPackaged) {
-      const message = "update-electron-app config looks good; aborting updates since app is in development mode";
-      if (opts.logger) {
-        opts.logger.log(message);
-      } else {
-        console.log(message);
-      }
+  function S(d = {}) {
+    const E = $(d);
+    if (!o.app.isPackaged) {
+      const m = "update-electron-app config looks good; aborting updates since app is in development mode";
+      d.logger ? d.logger.log(m) : console.log(m);
       return;
     }
-    if (electron_1.app.isReady()) {
-      initUpdater(safeOpts);
-    } else {
-      electron_1.app.on("ready", () => initUpdater(safeOpts));
-    }
+    o.app.isReady() ? b(E) : o.app.on("ready", () => b(E));
   }
-  function initUpdater(opts) {
-    const { updateSource, updateInterval, logger } = opts;
-    if (!supportedPlatforms.includes(process === null || process === void 0 ? void 0 : process.platform)) {
-      log2(`Electron's autoUpdater does not support the '${process.platform}' platform. Ref: https://www.electronjs.org/docs/latest/api/auto-updater#platform-notices`);
+  function b(d) {
+    const { updateSource: E, updateInterval: m, logger: y } = d;
+    if (!f.includes(process == null ? void 0 : process.platform)) {
+      L(`Electron's autoUpdater does not support the '${process.platform}' platform. Ref: https://www.electronjs.org/docs/latest/api/auto-updater#platform-notices`);
       return;
     }
-    let feedURL;
-    let serverType = "default";
-    switch (updateSource.type) {
-      case UpdateSourceType.ElectronPublicUpdateService: {
-        feedURL = `${updateSource.host}/${updateSource.repo}/${process.platform}-${process.arch}/${electron_1.app.getVersion()}`;
+    let v, O = "default";
+    switch (E.type) {
+      case a.ElectronPublicUpdateService: {
+        v = `${E.host}/${E.repo}/${process.platform}-${process.arch}/${o.app.getVersion()}`;
         break;
       }
-      case UpdateSourceType.StaticStorage: {
-        feedURL = updateSource.baseUrl;
-        if (process.platform === "darwin") {
-          feedURL += "/RELEASES.json";
-          serverType = "json";
-        }
+      case a.StaticStorage: {
+        v = E.baseUrl, process.platform === "darwin" && (v += "/RELEASES.json", O = "json");
         break;
       }
     }
-    const requestHeaders = { "User-Agent": userAgent };
-    function log2(...args) {
-      logger.log(...args);
+    const R = { "User-Agent": p };
+    function L(...w) {
+      y.log(...w);
     }
-    log2("feedURL", feedURL);
-    log2("requestHeaders", requestHeaders);
-    electron_1.autoUpdater.setFeedURL({
-      url: feedURL,
-      headers: requestHeaders,
-      serverType
-    });
-    electron_1.autoUpdater.on("error", (err) => {
-      log2("updater error");
-      log2(err);
-    });
-    electron_1.autoUpdater.on("checking-for-update", () => {
-      log2("checking-for-update");
-    });
-    electron_1.autoUpdater.on("update-available", () => {
-      log2("update-available; downloading...");
-    });
-    electron_1.autoUpdater.on("update-not-available", () => {
-      log2("update-not-available");
-    });
-    if (opts.notifyUser) {
-      electron_1.autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName, releaseDate, updateURL) => {
-        log2("update-downloaded", [event, releaseNotes, releaseName, releaseDate, updateURL]);
-        if (typeof opts.onNotifyUser !== "function") {
-          (0, node_assert_1.default)(opts.onNotifyUser === void 0, "onNotifyUser option must be a callback function or undefined");
-          log2("update-downloaded: notifyUser is true, opening default dialog");
-          opts.onNotifyUser = makeUserNotifier();
-        } else {
-          log2("update-downloaded: notifyUser is true, running custom onNotifyUser callback");
-        }
-        opts.onNotifyUser({
-          event,
-          releaseNotes,
-          releaseDate,
-          releaseName,
-          updateURL
-        });
+    L("feedURL", v), L("requestHeaders", R), o.autoUpdater.setFeedURL({
+      url: v,
+      headers: R,
+      serverType: O
+    }), o.autoUpdater.on("error", (w) => {
+      L("updater error"), L(w);
+    }), o.autoUpdater.on("checking-for-update", () => {
+      L("checking-for-update");
+    }), o.autoUpdater.on("update-available", () => {
+      L("update-available; downloading...");
+    }), o.autoUpdater.on("update-not-available", () => {
+      L("update-not-available");
+    }), d.notifyUser && o.autoUpdater.on("update-downloaded", (w, M, U, z, Oe) => {
+      L("update-downloaded", [w, M, U, z, Oe]), typeof d.onNotifyUser != "function" ? ((0, i.default)(d.onNotifyUser === void 0, "onNotifyUser option must be a callback function or undefined"), L("update-downloaded: notifyUser is true, opening default dialog"), d.onNotifyUser = g()) : L("update-downloaded: notifyUser is true, running custom onNotifyUser callback"), d.onNotifyUser({
+        event: w,
+        releaseNotes: M,
+        releaseDate: z,
+        releaseName: U,
+        updateURL: Oe
       });
-    }
-    electron_1.autoUpdater.checkForUpdates();
-    setInterval(() => {
-      electron_1.autoUpdater.checkForUpdates();
-    }, (0, ms_1.default)(updateInterval));
+    }), o.autoUpdater.checkForUpdates(), setInterval(() => {
+      o.autoUpdater.checkForUpdates();
+    }, (0, c.default)(m));
   }
-  function makeUserNotifier(dialogProps) {
-    const defaultDialogMessages = {
+  function g(d) {
+    const m = Object.assign({}, {
       title: "Application Update",
       detail: "A new version has been downloaded. Restart the application to apply the updates.",
       restartButtonText: "Restart",
       laterButtonText: "Later"
-    };
-    const assignedDialog = Object.assign({}, defaultDialogMessages, dialogProps);
-    return (info) => {
-      const { releaseNotes, releaseName } = info;
-      const { title, restartButtonText, laterButtonText, detail } = assignedDialog;
-      const dialogOpts = {
+    }, d);
+    return (y) => {
+      const { releaseNotes: v, releaseName: O } = y, { title: R, restartButtonText: L, laterButtonText: w, detail: M } = m, U = {
         type: "info",
-        buttons: [restartButtonText, laterButtonText],
-        title,
-        message: process.platform === "win32" ? releaseNotes : releaseName,
-        detail
+        buttons: [L, w],
+        title: R,
+        message: process.platform === "win32" ? v : O,
+        detail: M
       };
-      electron_1.dialog.showMessageBox(dialogOpts).then(({ response }) => {
-        if (response === 0) {
-          electron_1.autoUpdater.quitAndInstall();
-        }
+      o.dialog.showMessageBox(U).then(({ response: z }) => {
+        z === 0 && o.autoUpdater.quitAndInstall();
       });
     };
   }
-  function guessRepo() {
-    var _a;
-    const pkgBuf = node_fs_1.default.readFileSync(node_path_1.default.join(electron_1.app.getAppPath(), "package.json"));
-    const pkg2 = JSON.parse(pkgBuf.toString());
-    const repoString = ((_a = pkg2.repository) === null || _a === void 0 ? void 0 : _a.url) || pkg2.repository;
-    const repoObject = (0, github_url_to_object_1.default)(repoString);
-    (0, node_assert_1.default)(repoObject, "repo not found. Add repository string to your app's package.json file");
-    return `${repoObject.user}/${repoObject.repo}`;
+  function A() {
+    var d;
+    const E = e.default.readFileSync(t.default.join(o.app.getAppPath(), "package.json")), m = JSON.parse(E.toString()), y = ((d = m.repository) === null || d === void 0 ? void 0 : d.url) || m.repository, v = (0, s.default)(y);
+    return (0, i.default)(v, "repo not found. Add repository string to your app's package.json file"), `${v.user}/${v.repo}`;
   }
-  function validateInput(opts) {
-    var _a;
-    const defaults = {
+  function $(d) {
+    var E;
+    const m = {
       host: "https://update.electronjs.org",
       updateInterval: "10 minutes",
       logger: console,
-      notifyUser: true
-    };
-    const { host, updateInterval, logger, notifyUser, onNotifyUser } = Object.assign({}, defaults, opts);
-    let updateSource = opts.updateSource;
-    if (!updateSource) {
-      updateSource = {
-        type: UpdateSourceType.ElectronPublicUpdateService,
-        repo: opts.repo || guessRepo(),
-        host
-      };
-    }
-    switch (updateSource.type) {
-      case UpdateSourceType.ElectronPublicUpdateService: {
-        (0, node_assert_1.default)((_a = updateSource.repo) === null || _a === void 0 ? void 0 : _a.includes("/"), "repo is required and should be in the format `owner/repo`");
-        if (!updateSource.host) {
-          updateSource.host = host;
-        }
-        (0, node_assert_1.default)(updateSource.host && isHttpsUrl(updateSource.host), "host must be a valid HTTPS URL");
+      notifyUser: !0
+    }, { host: y, updateInterval: v, logger: O, notifyUser: R, onNotifyUser: L } = Object.assign({}, m, d);
+    let w = d.updateSource;
+    switch (w || (w = {
+      type: a.ElectronPublicUpdateService,
+      repo: d.repo || A(),
+      host: y
+    }), w.type) {
+      case a.ElectronPublicUpdateService: {
+        (0, i.default)((E = w.repo) === null || E === void 0 ? void 0 : E.includes("/"), "repo is required and should be in the format `owner/repo`"), w.host || (w.host = y), (0, i.default)(w.host && h(w.host), "host must be a valid HTTPS URL");
         break;
       }
-      case UpdateSourceType.StaticStorage: {
-        (0, node_assert_1.default)(updateSource.baseUrl && isHttpsUrl(updateSource.baseUrl), "baseUrl must be a valid HTTPS URL");
+      case a.StaticStorage: {
+        (0, i.default)(w.baseUrl && h(w.baseUrl), "baseUrl must be a valid HTTPS URL");
         break;
       }
     }
-    (0, node_assert_1.default)(typeof updateInterval === "string" && updateInterval.match(/^\d+/), "updateInterval must be a human-friendly string interval like `20 minutes`");
-    (0, node_assert_1.default)((0, ms_1.default)(updateInterval) >= 5 * 60 * 1e3, "updateInterval must be `5 minutes` or more");
-    (0, node_assert_1.default)(logger && typeof logger.log, "function");
-    return { updateSource, updateInterval, logger, notifyUser, onNotifyUser };
+    return (0, i.default)(typeof v == "string" && v.match(/^\d+/), "updateInterval must be a human-friendly string interval like `20 minutes`"), (0, i.default)((0, c.default)(v) >= 300 * 1e3, "updateInterval must be `5 minutes` or more"), (0, i.default)(O && typeof O.log, "function"), { updateSource: w, updateInterval: v, logger: O, notifyUser: R, onNotifyUser: L };
   }
-  return dist;
+  return x;
 }
-var distExports = requireDist();
-var src = { exports: {} };
-var electronLogPreload = { exports: {} };
-var hasRequiredElectronLogPreload;
-function requireElectronLogPreload() {
-  if (hasRequiredElectronLogPreload) return electronLogPreload.exports;
-  hasRequiredElectronLogPreload = 1;
-  (function(module) {
-    let electron = {};
+var jt = Rt(), C = { exports: {} }, G = { exports: {} }, xe;
+function at() {
+  return xe || (xe = 1, (function(u) {
+    let c = {};
     try {
-      electron = require("electron");
-    } catch (e) {
+      c = require("electron");
+    } catch {
     }
-    if (electron.ipcRenderer) {
-      initialize2(electron);
-    }
-    {
-      module.exports = initialize2;
-    }
-    function initialize2({ contextBridge, ipcRenderer }) {
-      if (!ipcRenderer) {
+    c.ipcRenderer && s(c), u.exports = s;
+    function s({ contextBridge: i, ipcRenderer: e }) {
+      if (!e)
         return;
-      }
-      ipcRenderer.on("__ELECTRON_LOG_IPC__", (_, message) => {
-        window.postMessage({ cmd: "message", ...message });
-      });
-      ipcRenderer.invoke("__ELECTRON_LOG__", { cmd: "getOptions" }).catch((e) => console.error(new Error(
-        `electron-log isn't initialized in the main process. Please call log.initialize() before. ${e.message}`
+      e.on("__ELECTRON_LOG_IPC__", (t, n) => {
+        window.postMessage({ cmd: "message", ...n });
+      }), e.invoke("__ELECTRON_LOG__", { cmd: "getOptions" }).catch((t) => console.error(new Error(
+        `electron-log isn't initialized in the main process. Please call log.initialize() before. ${t.message}`
       )));
-      const electronLog = {
-        sendToMain(message) {
+      const r = {
+        sendToMain(t) {
           try {
-            ipcRenderer.send("__ELECTRON_LOG__", message);
-          } catch (e) {
-            console.error("electronLog.sendToMain ", e, "data:", message);
-            ipcRenderer.send("__ELECTRON_LOG__", {
+            e.send("__ELECTRON_LOG__", t);
+          } catch (n) {
+            console.error("electronLog.sendToMain ", n, "data:", t), e.send("__ELECTRON_LOG__", {
               cmd: "errorHandler",
-              error: { message: e?.message, stack: e?.stack },
+              error: { message: n?.message, stack: n?.stack },
               errorName: "sendToMain"
             });
           }
         },
-        log(...data) {
-          electronLog.sendToMain({ data, level: "info" });
+        log(...t) {
+          r.sendToMain({ data: t, level: "info" });
         }
       };
-      for (const level of ["error", "warn", "info", "verbose", "debug", "silly"]) {
-        electronLog[level] = (...data) => electronLog.sendToMain({
-          data,
-          level
+      for (const t of ["error", "warn", "info", "verbose", "debug", "silly"])
+        r[t] = (...n) => r.sendToMain({
+          data: n,
+          level: t
         });
-      }
-      if (contextBridge && process.contextIsolated) {
+      if (i && process.contextIsolated)
         try {
-          contextBridge.exposeInMainWorld("__electronLog", electronLog);
+          i.exposeInMainWorld("__electronLog", r);
         } catch {
         }
-      }
-      if (typeof window === "object") {
-        window.__electronLog = electronLog;
-      } else {
-        __electronLog = electronLog;
-      }
+      typeof window == "object" ? window.__electronLog = r : __electronLog = r;
     }
-  })(electronLogPreload);
-  return electronLogPreload.exports;
+  })(G)), G.exports;
 }
-var renderer = { exports: {} };
-var scope;
-var hasRequiredScope;
-function requireScope() {
-  if (hasRequiredScope) return scope;
-  hasRequiredScope = 1;
-  scope = scopeFactory;
-  function scopeFactory(logger) {
-    return Object.defineProperties(scope2, {
-      defaultLabel: { value: "", writable: true },
-      labelPadding: { value: true, writable: true },
-      maxLabelLength: { value: 0, writable: true },
+var Y = { exports: {} }, Q, De;
+function qt() {
+  if (De) return Q;
+  De = 1, Q = u;
+  function u(c) {
+    return Object.defineProperties(s, {
+      defaultLabel: { value: "", writable: !0 },
+      labelPadding: { value: !0, writable: !0 },
+      maxLabelLength: { value: 0, writable: !0 },
       labelLength: {
         get() {
-          switch (typeof scope2.labelPadding) {
+          switch (typeof s.labelPadding) {
             case "boolean":
-              return scope2.labelPadding ? scope2.maxLabelLength : 0;
+              return s.labelPadding ? s.maxLabelLength : 0;
             case "number":
-              return scope2.labelPadding;
+              return s.labelPadding;
             default:
               return 0;
           }
         }
       }
     });
-    function scope2(label) {
-      scope2.maxLabelLength = Math.max(scope2.maxLabelLength, label.length);
-      const newScope = {};
-      for (const level of logger.levels) {
-        newScope[level] = (...d) => logger.logData(d, { level, scope: label });
-      }
-      newScope.log = newScope.info;
-      return newScope;
+    function s(i) {
+      s.maxLabelLength = Math.max(s.maxLabelLength, i.length);
+      const e = {};
+      for (const r of c.levels)
+        e[r] = (...t) => c.logData(t, { level: r, scope: i });
+      return e.log = e.info, e;
     }
   }
-  return scope;
+  return Q;
 }
-var Buffering_1;
-var hasRequiredBuffering;
-function requireBuffering() {
-  if (hasRequiredBuffering) return Buffering_1;
-  hasRequiredBuffering = 1;
-  class Buffering {
-    constructor({ processMessage }) {
-      this.processMessage = processMessage;
-      this.buffer = [];
-      this.enabled = false;
-      this.begin = this.begin.bind(this);
-      this.commit = this.commit.bind(this);
-      this.reject = this.reject.bind(this);
+var X, Re;
+function Nt() {
+  if (Re) return X;
+  Re = 1;
+  class u {
+    constructor({ processMessage: s }) {
+      this.processMessage = s, this.buffer = [], this.enabled = !1, this.begin = this.begin.bind(this), this.commit = this.commit.bind(this), this.reject = this.reject.bind(this);
     }
-    addMessage(message) {
-      this.buffer.push(message);
+    addMessage(s) {
+      this.buffer.push(s);
     }
     begin() {
       this.enabled = [];
     }
     commit() {
-      this.enabled = false;
-      this.buffer.forEach((item) => this.processMessage(item));
-      this.buffer = [];
+      this.enabled = !1, this.buffer.forEach((s) => this.processMessage(s)), this.buffer = [];
     }
     reject() {
-      this.enabled = false;
-      this.buffer = [];
+      this.enabled = !1, this.buffer = [];
     }
   }
-  Buffering_1 = Buffering;
-  return Buffering_1;
+  return X = u, X;
 }
-var Logger_1;
-var hasRequiredLogger;
-function requireLogger() {
-  if (hasRequiredLogger) return Logger_1;
-  hasRequiredLogger = 1;
-  const scopeFactory = requireScope();
-  const Buffering = requireBuffering();
-  class Logger {
+var Z, je;
+function ct() {
+  if (je) return Z;
+  je = 1;
+  const u = qt(), c = Nt();
+  class s {
     static instances = {};
     dependencies = {};
     errorHandler = null;
     eventLogger = null;
     functions = {};
     hooks = [];
-    isDev = false;
+    isDev = !1;
     levels = null;
     logId = null;
     scope = null;
     transports = {};
     variables = {};
     constructor({
-      allowUnknownLevel = false,
-      dependencies = {},
-      errorHandler,
-      eventLogger,
-      initializeFn,
-      isDev = false,
-      levels = ["error", "warn", "info", "verbose", "debug", "silly"],
-      logId,
-      transportFactories = {},
-      variables
+      allowUnknownLevel: e = !1,
+      dependencies: r = {},
+      errorHandler: t,
+      eventLogger: n,
+      initializeFn: o,
+      isDev: a = !1,
+      levels: l = ["error", "warn", "info", "verbose", "debug", "silly"],
+      logId: p,
+      transportFactories: f = {},
+      variables: h
     } = {}) {
-      this.addLevel = this.addLevel.bind(this);
-      this.create = this.create.bind(this);
-      this.initialize = this.initialize.bind(this);
-      this.logData = this.logData.bind(this);
-      this.processMessage = this.processMessage.bind(this);
-      this.allowUnknownLevel = allowUnknownLevel;
-      this.buffering = new Buffering(this);
-      this.dependencies = dependencies;
-      this.initializeFn = initializeFn;
-      this.isDev = isDev;
-      this.levels = levels;
-      this.logId = logId;
-      this.scope = scopeFactory(this);
-      this.transportFactories = transportFactories;
-      this.variables = variables || {};
-      for (const name2 of this.levels) {
-        this.addLevel(name2, false);
-      }
-      this.log = this.info;
-      this.functions.log = this.log;
-      this.errorHandler = errorHandler;
-      errorHandler?.setOptions({ ...dependencies, logFn: this.error });
-      this.eventLogger = eventLogger;
-      eventLogger?.setOptions({ ...dependencies, logger: this });
-      for (const [name2, factory] of Object.entries(transportFactories)) {
-        this.transports[name2] = factory(this, dependencies);
-      }
-      Logger.instances[logId] = this;
+      this.addLevel = this.addLevel.bind(this), this.create = this.create.bind(this), this.initialize = this.initialize.bind(this), this.logData = this.logData.bind(this), this.processMessage = this.processMessage.bind(this), this.allowUnknownLevel = e, this.buffering = new c(this), this.dependencies = r, this.initializeFn = o, this.isDev = a, this.levels = l, this.logId = p, this.scope = u(this), this.transportFactories = f, this.variables = h || {};
+      for (const S of this.levels)
+        this.addLevel(S, !1);
+      this.log = this.info, this.functions.log = this.log, this.errorHandler = t, t?.setOptions({ ...r, logFn: this.error }), this.eventLogger = n, n?.setOptions({ ...r, logger: this });
+      for (const [S, b] of Object.entries(f))
+        this.transports[S] = b(this, r);
+      s.instances[p] = this;
     }
-    static getInstance({ logId }) {
-      return this.instances[logId] || this.instances.default;
+    static getInstance({ logId: e }) {
+      return this.instances[e] || this.instances.default;
     }
-    addLevel(level, index = this.levels.length) {
-      if (index !== false) {
-        this.levels.splice(index, 0, level);
-      }
-      this[level] = (...args) => this.logData(args, { level });
-      this.functions[level] = this[level];
+    addLevel(e, r = this.levels.length) {
+      r !== !1 && this.levels.splice(r, 0, e), this[e] = (...t) => this.logData(t, { level: e }), this.functions[e] = this[e];
     }
-    catchErrors(options) {
-      this.processMessage(
+    catchErrors(e) {
+      return this.processMessage(
         {
           data: ["log.catchErrors is deprecated. Use log.errorHandler instead"],
           level: "warn"
         },
         { transports: ["console"] }
-      );
-      return this.errorHandler.startCatching(options);
+      ), this.errorHandler.startCatching(e);
     }
-    create(options) {
-      if (typeof options === "string") {
-        options = { logId: options };
-      }
-      return new Logger({
+    create(e) {
+      return typeof e == "string" && (e = { logId: e }), new s({
         dependencies: this.dependencies,
         errorHandler: this.errorHandler,
         initializeFn: this.initializeFn,
         isDev: this.isDev,
         transportFactories: this.transportFactories,
         variables: { ...this.variables },
-        ...options
+        ...e
       });
     }
-    compareLevels(passLevel, checkLevel, levels = this.levels) {
-      const pass = levels.indexOf(passLevel);
-      const check = levels.indexOf(checkLevel);
-      if (check === -1 || pass === -1) {
-        return true;
-      }
-      return check <= pass;
+    compareLevels(e, r, t = this.levels) {
+      const n = t.indexOf(e), o = t.indexOf(r);
+      return o === -1 || n === -1 ? !0 : o <= n;
     }
-    initialize(options = {}) {
-      this.initializeFn({ logger: this, ...this.dependencies, ...options });
+    initialize(e = {}) {
+      this.initializeFn({ logger: this, ...this.dependencies, ...e });
     }
-    logData(data, options = {}) {
-      if (this.buffering.enabled) {
-        this.buffering.addMessage({ data, date: /* @__PURE__ */ new Date(), ...options });
-      } else {
-        this.processMessage({ data, ...options });
-      }
+    logData(e, r = {}) {
+      this.buffering.enabled ? this.buffering.addMessage({ data: e, date: /* @__PURE__ */ new Date(), ...r }) : this.processMessage({ data: e, ...r });
     }
-    processMessage(message, { transports = this.transports } = {}) {
-      if (message.cmd === "errorHandler") {
-        this.errorHandler.handle(message.error, {
-          errorName: message.errorName,
+    processMessage(e, { transports: r = this.transports } = {}) {
+      if (e.cmd === "errorHandler") {
+        this.errorHandler.handle(e.error, {
+          errorName: e.errorName,
           processType: "renderer",
-          showDialog: Boolean(message.showDialog)
+          showDialog: !!e.showDialog
         });
         return;
       }
-      let level = message.level;
-      if (!this.allowUnknownLevel) {
-        level = this.levels.includes(message.level) ? message.level : "info";
-      }
-      const normalizedMessage = {
+      let t = e.level;
+      this.allowUnknownLevel || (t = this.levels.includes(e.level) ? e.level : "info");
+      const n = {
         date: /* @__PURE__ */ new Date(),
         logId: this.logId,
-        ...message,
-        level,
+        ...e,
+        level: t,
         variables: {
           ...this.variables,
-          ...message.variables
+          ...e.variables
         }
       };
-      for (const [transName, transFn] of this.transportEntries(transports)) {
-        if (typeof transFn !== "function" || transFn.level === false) {
-          continue;
-        }
-        if (!this.compareLevels(transFn.level, message.level)) {
-          continue;
-        }
-        try {
-          const transformedMsg = this.hooks.reduce((msg, hook) => {
-            return msg ? hook(msg, transFn, transName) : msg;
-          }, normalizedMessage);
-          if (transformedMsg) {
-            transFn({ ...transformedMsg, data: [...transformedMsg.data] });
+      for (const [o, a] of this.transportEntries(r))
+        if (!(typeof a != "function" || a.level === !1) && this.compareLevels(a.level, e.level))
+          try {
+            const l = this.hooks.reduce((p, f) => p && f(p, a, o), n);
+            l && a({ ...l, data: [...l.data] });
+          } catch (l) {
+            this.processInternalErrorFn(l);
           }
-        } catch (e) {
-          this.processInternalErrorFn(e);
-        }
-      }
     }
-    processInternalErrorFn(_e) {
+    processInternalErrorFn(e) {
     }
-    transportEntries(transports = this.transports) {
-      const transportArray = Array.isArray(transports) ? transports : Object.entries(transports);
-      return transportArray.map((item) => {
-        switch (typeof item) {
+    transportEntries(e = this.transports) {
+      return (Array.isArray(e) ? e : Object.entries(e)).map((t) => {
+        switch (typeof t) {
           case "string":
-            return this.transports[item] ? [item, this.transports[item]] : null;
+            return this.transports[t] ? [t, this.transports[t]] : null;
           case "function":
-            return [item.name, item];
+            return [t.name, t];
           default:
-            return Array.isArray(item) ? item : null;
+            return Array.isArray(t) ? t : null;
         }
       }).filter(Boolean);
     }
   }
-  Logger_1 = Logger;
-  return Logger_1;
+  return Z = s, Z;
 }
-var RendererErrorHandler_1;
-var hasRequiredRendererErrorHandler;
-function requireRendererErrorHandler() {
-  if (hasRequiredRendererErrorHandler) return RendererErrorHandler_1;
-  hasRequiredRendererErrorHandler = 1;
-  const consoleError = console.error;
-  class RendererErrorHandler {
+var K, qe;
+function Tt() {
+  if (qe) return K;
+  qe = 1;
+  const u = console.error;
+  class c {
     logFn = null;
     onError = null;
-    showDialog = false;
-    preventDefault = true;
-    constructor({ logFn = null } = {}) {
-      this.handleError = this.handleError.bind(this);
-      this.handleRejection = this.handleRejection.bind(this);
-      this.startCatching = this.startCatching.bind(this);
-      this.logFn = logFn;
+    showDialog = !1;
+    preventDefault = !0;
+    constructor({ logFn: i = null } = {}) {
+      this.handleError = this.handleError.bind(this), this.handleRejection = this.handleRejection.bind(this), this.startCatching = this.startCatching.bind(this), this.logFn = i;
     }
-    handle(error, {
-      logFn = this.logFn,
-      errorName = "",
-      onError = this.onError,
-      showDialog = this.showDialog
+    handle(i, {
+      logFn: e = this.logFn,
+      errorName: r = "",
+      onError: t = this.onError,
+      showDialog: n = this.showDialog
     } = {}) {
       try {
-        if (onError?.({ error, errorName, processType: "renderer" }) !== false) {
-          logFn({ error, errorName, showDialog });
-        }
+        t?.({ error: i, errorName: r, processType: "renderer" }) !== !1 && e({ error: i, errorName: r, showDialog: n });
       } catch {
-        consoleError(error);
+        u(i);
       }
     }
-    setOptions({ logFn, onError, preventDefault, showDialog }) {
-      if (typeof logFn === "function") {
-        this.logFn = logFn;
-      }
-      if (typeof onError === "function") {
-        this.onError = onError;
-      }
-      if (typeof preventDefault === "boolean") {
-        this.preventDefault = preventDefault;
-      }
-      if (typeof showDialog === "boolean") {
-        this.showDialog = showDialog;
-      }
+    setOptions({ logFn: i, onError: e, preventDefault: r, showDialog: t }) {
+      typeof i == "function" && (this.logFn = i), typeof e == "function" && (this.onError = e), typeof r == "boolean" && (this.preventDefault = r), typeof t == "boolean" && (this.showDialog = t);
     }
-    startCatching({ onError, showDialog } = {}) {
-      if (this.isActive) {
-        return;
-      }
-      this.isActive = true;
-      this.setOptions({ onError, showDialog });
-      window.addEventListener("error", (event) => {
-        this.preventDefault && event.preventDefault?.();
-        this.handleError(event.error || event);
-      });
-      window.addEventListener("unhandledrejection", (event) => {
-        this.preventDefault && event.preventDefault?.();
-        this.handleRejection(event.reason || event);
-      });
+    startCatching({ onError: i, showDialog: e } = {}) {
+      this.isActive || (this.isActive = !0, this.setOptions({ onError: i, showDialog: e }), window.addEventListener("error", (r) => {
+        this.preventDefault && r.preventDefault?.(), this.handleError(r.error || r);
+      }), window.addEventListener("unhandledrejection", (r) => {
+        this.preventDefault && r.preventDefault?.(), this.handleRejection(r.reason || r);
+      }));
     }
-    handleError(error) {
-      this.handle(error, { errorName: "Unhandled" });
+    handleError(i) {
+      this.handle(i, { errorName: "Unhandled" });
     }
-    handleRejection(reason) {
-      const error = reason instanceof Error ? reason : new Error(JSON.stringify(reason));
-      this.handle(error, { errorName: "Unhandled rejection" });
+    handleRejection(i) {
+      const e = i instanceof Error ? i : new Error(JSON.stringify(i));
+      this.handle(e, { errorName: "Unhandled rejection" });
     }
   }
-  RendererErrorHandler_1 = RendererErrorHandler;
-  return RendererErrorHandler_1;
+  return K = c, K;
 }
-var transform_1;
-var hasRequiredTransform;
-function requireTransform() {
-  if (hasRequiredTransform) return transform_1;
-  hasRequiredTransform = 1;
-  transform_1 = { transform };
-  function transform({
-    logger,
-    message,
-    transport,
-    initialData = message?.data || [],
-    transforms = transport?.transforms
+var ee, Ne;
+function N() {
+  if (Ne) return ee;
+  Ne = 1, ee = { transform: u };
+  function u({
+    logger: c,
+    message: s,
+    transport: i,
+    initialData: e = s?.data || [],
+    transforms: r = i?.transforms
   }) {
-    return transforms.reduce((data, trans) => {
-      if (typeof trans === "function") {
-        return trans({ data, logger, message, transport });
-      }
-      return data;
-    }, initialData);
+    return r.reduce((t, n) => typeof n == "function" ? n({ data: t, logger: c, message: s, transport: i }) : t, e);
   }
-  return transform_1;
+  return ee;
 }
-var console_1$1;
-var hasRequiredConsole$1;
-function requireConsole$1() {
-  if (hasRequiredConsole$1) return console_1$1;
-  hasRequiredConsole$1 = 1;
-  const { transform } = requireTransform();
-  console_1$1 = consoleTransportRendererFactory;
-  const consoleMethods = {
+var te, Te;
+function kt() {
+  if (Te) return te;
+  Te = 1;
+  const { transform: u } = N();
+  te = s;
+  const c = {
     error: console.error,
     warn: console.warn,
     info: console.info,
@@ -877,96 +582,89 @@ function requireConsole$1() {
     silly: console.debug,
     log: console.log
   };
-  function consoleTransportRendererFactory(logger) {
-    return Object.assign(transport, {
+  function s(e) {
+    return Object.assign(r, {
       format: "{h}:{i}:{s}.{ms}{scope} › {text}",
-      transforms: [formatDataFn],
-      writeFn({ message: { level, data } }) {
-        const consoleLogFn = consoleMethods[level] || consoleMethods.info;
-        setTimeout(() => consoleLogFn(...data));
+      transforms: [i],
+      writeFn({ message: { level: t, data: n } }) {
+        const o = c[t] || c.info;
+        setTimeout(() => o(...n));
       }
     });
-    function transport(message) {
-      transport.writeFn({
-        message: { ...message, data: transform({ logger, message, transport }) }
+    function r(t) {
+      r.writeFn({
+        message: { ...t, data: u({ logger: e, message: t, transport: r }) }
       });
     }
   }
-  function formatDataFn({
-    data = [],
-    logger = {},
-    message = {},
-    transport = {}
+  function i({
+    data: e = [],
+    logger: r = {},
+    message: t = {},
+    transport: n = {}
   }) {
-    if (typeof transport.format === "function") {
-      return transport.format({
-        data,
-        level: message?.level || "info",
-        logger,
-        message,
-        transport
+    if (typeof n.format == "function")
+      return n.format({
+        data: e,
+        level: t?.level || "info",
+        logger: r,
+        message: t,
+        transport: n
       });
-    }
-    if (typeof transport.format !== "string") {
-      return data;
-    }
-    data.unshift(transport.format);
-    if (typeof data[1] === "string" && data[1].match(/%[1cdfiOos]/)) {
-      data = [`${data[0]}${data[1]}`, ...data.slice(2)];
-    }
-    const date = message.date || /* @__PURE__ */ new Date();
-    data[0] = data[0].replace(/\{(\w+)}/g, (substring, name2) => {
-      switch (name2) {
+    if (typeof n.format != "string")
+      return e;
+    e.unshift(n.format), typeof e[1] == "string" && e[1].match(/%[1cdfiOos]/) && (e = [`${e[0]}${e[1]}`, ...e.slice(2)]);
+    const o = t.date || /* @__PURE__ */ new Date();
+    return e[0] = e[0].replace(/\{(\w+)}/g, (a, l) => {
+      switch (l) {
         case "level":
-          return message.level;
+          return t.level;
         case "logId":
-          return message.logId;
+          return t.logId;
         case "scope": {
-          const scope2 = message.scope || logger.scope?.defaultLabel;
-          return scope2 ? ` (${scope2})` : "";
+          const p = t.scope || r.scope?.defaultLabel;
+          return p ? ` (${p})` : "";
         }
         case "text":
           return "";
         case "y":
-          return date.getFullYear().toString(10);
+          return o.getFullYear().toString(10);
         case "m":
-          return (date.getMonth() + 1).toString(10).padStart(2, "0");
+          return (o.getMonth() + 1).toString(10).padStart(2, "0");
         case "d":
-          return date.getDate().toString(10).padStart(2, "0");
+          return o.getDate().toString(10).padStart(2, "0");
         case "h":
-          return date.getHours().toString(10).padStart(2, "0");
+          return o.getHours().toString(10).padStart(2, "0");
         case "i":
-          return date.getMinutes().toString(10).padStart(2, "0");
+          return o.getMinutes().toString(10).padStart(2, "0");
         case "s":
-          return date.getSeconds().toString(10).padStart(2, "0");
+          return o.getSeconds().toString(10).padStart(2, "0");
         case "ms":
-          return date.getMilliseconds().toString(10).padStart(3, "0");
+          return o.getMilliseconds().toString(10).padStart(3, "0");
         case "iso":
-          return date.toISOString();
+          return o.toISOString();
         default:
-          return message.variables?.[name2] || substring;
+          return t.variables?.[l] || a;
       }
-    }).trim();
-    return data;
+    }).trim(), e;
   }
-  return console_1$1;
+  return te;
 }
-var ipc$1;
-var hasRequiredIpc$1;
-function requireIpc$1() {
-  if (hasRequiredIpc$1) return ipc$1;
-  hasRequiredIpc$1 = 1;
-  const { transform } = requireTransform();
-  ipc$1 = ipcTransportRendererFactory;
-  const RESTRICTED_TYPES = /* @__PURE__ */ new Set([Promise, WeakMap, WeakSet]);
-  function ipcTransportRendererFactory(logger) {
-    return Object.assign(transport, {
+var re, ke;
+function Ct() {
+  if (ke) return re;
+  ke = 1;
+  const { transform: u } = N();
+  re = s;
+  const c = /* @__PURE__ */ new Set([Promise, WeakMap, WeakSet]);
+  function s(r) {
+    return Object.assign(t, {
       depth: 5,
-      transforms: [serializeFn]
+      transforms: [e]
     });
-    function transport(message) {
+    function t(n) {
       if (!window.__electronLog) {
-        logger.processMessage(
+        r.processMessage(
           {
             data: ["electron-log: logger isn't initialized in the main process"],
             level: "error"
@@ -976,277 +674,184 @@ function requireIpc$1() {
         return;
       }
       try {
-        const serialized = transform({
-          initialData: message,
-          logger,
-          message,
-          transport
+        const o = u({
+          initialData: n,
+          logger: r,
+          message: n,
+          transport: t
         });
-        __electronLog.sendToMain(serialized);
-      } catch (e) {
-        logger.transports.console({
-          data: ["electronLog.transports.ipc", e, "data:", message.data],
+        __electronLog.sendToMain(o);
+      } catch (o) {
+        r.transports.console({
+          data: ["electronLog.transports.ipc", o, "data:", n.data],
           level: "error"
         });
       }
     }
   }
-  function isPrimitive(value) {
-    return Object(value) !== value;
+  function i(r) {
+    return Object(r) !== r;
   }
-  function serializeFn({
-    data,
-    depth,
-    seen = /* @__PURE__ */ new WeakSet(),
-    transport = {}
+  function e({
+    data: r,
+    depth: t,
+    seen: n = /* @__PURE__ */ new WeakSet(),
+    transport: o = {}
   } = {}) {
-    const actualDepth = depth || transport.depth || 5;
-    if (seen.has(data)) {
-      return "[Circular]";
-    }
-    if (actualDepth < 1) {
-      if (isPrimitive(data)) {
-        return data;
-      }
-      if (Array.isArray(data)) {
-        return "[Array]";
-      }
-      return `[${typeof data}]`;
-    }
-    if (["function", "symbol"].includes(typeof data)) {
-      return data.toString();
-    }
-    if (isPrimitive(data)) {
-      return data;
-    }
-    if (RESTRICTED_TYPES.has(data.constructor)) {
-      return `[${data.constructor.name}]`;
-    }
-    if (Array.isArray(data)) {
-      return data.map((item) => serializeFn({
-        data: item,
-        depth: actualDepth - 1,
-        seen
-      }));
-    }
-    if (data instanceof Date) {
-      return data.toISOString();
-    }
-    if (data instanceof Error) {
-      return data.stack;
-    }
-    if (data instanceof Map) {
-      return new Map(
-        Array.from(data).map(([key, value]) => [
-          serializeFn({ data: key, depth: actualDepth - 1, seen }),
-          serializeFn({ data: value, depth: actualDepth - 1, seen })
-        ])
-      );
-    }
-    if (data instanceof Set) {
-      return new Set(
-        Array.from(data).map(
-          (val) => serializeFn({ data: val, depth: actualDepth - 1, seen })
-        )
-      );
-    }
-    seen.add(data);
-    return Object.fromEntries(
-      Object.entries(data).map(
-        ([key, value]) => [
-          key,
-          serializeFn({ data: value, depth: actualDepth - 1, seen })
+    const a = t || o.depth || 5;
+    return n.has(r) ? "[Circular]" : a < 1 ? i(r) ? r : Array.isArray(r) ? "[Array]" : `[${typeof r}]` : ["function", "symbol"].includes(typeof r) ? r.toString() : i(r) ? r : c.has(r.constructor) ? `[${r.constructor.name}]` : Array.isArray(r) ? r.map((l) => e({
+      data: l,
+      depth: a - 1,
+      seen: n
+    })) : r instanceof Date ? r.toISOString() : r instanceof Error ? r.stack : r instanceof Map ? new Map(
+      Array.from(r).map(([l, p]) => [
+        e({ data: l, depth: a - 1, seen: n }),
+        e({ data: p, depth: a - 1, seen: n })
+      ])
+    ) : r instanceof Set ? new Set(
+      Array.from(r).map(
+        (l) => e({ data: l, depth: a - 1, seen: n })
+      )
+    ) : (n.add(r), Object.fromEntries(
+      Object.entries(r).map(
+        ([l, p]) => [
+          l,
+          e({ data: p, depth: a - 1, seen: n })
         ]
       )
-    );
+    ));
   }
-  return ipc$1;
+  return re;
 }
-var hasRequiredRenderer;
-function requireRenderer() {
-  if (hasRequiredRenderer) return renderer.exports;
-  hasRequiredRenderer = 1;
-  (function(module) {
-    const Logger = requireLogger();
-    const RendererErrorHandler = requireRendererErrorHandler();
-    const transportConsole = requireConsole$1();
-    const transportIpc = requireIpc$1();
-    if (typeof process === "object" && process.type === "browser") {
-      console.warn(
-        "electron-log/renderer is loaded in the main process. It could cause unexpected behaviour."
-      );
-    }
-    module.exports = createLogger();
-    module.exports.Logger = Logger;
-    module.exports.default = module.exports;
-    function createLogger() {
-      const logger = new Logger({
-        allowUnknownLevel: true,
-        errorHandler: new RendererErrorHandler(),
+var Ce;
+function It() {
+  return Ce || (Ce = 1, (function(u) {
+    const c = ct(), s = Tt(), i = kt(), e = Ct();
+    typeof process == "object" && process.type === "browser" && console.warn(
+      "electron-log/renderer is loaded in the main process. It could cause unexpected behaviour."
+    ), u.exports = r(), u.exports.Logger = c, u.exports.default = u.exports;
+    function r() {
+      const t = new c({
+        allowUnknownLevel: !0,
+        errorHandler: new s(),
         initializeFn: () => {
         },
         logId: "default",
         transportFactories: {
-          console: transportConsole,
-          ipc: transportIpc
+          console: i,
+          ipc: e
         },
         variables: {
           processType: "renderer"
         }
       });
-      logger.errorHandler.setOptions({
-        logFn({ error, errorName, showDialog }) {
-          logger.transports.console({
-            data: [errorName, error].filter(Boolean),
+      return t.errorHandler.setOptions({
+        logFn({ error: n, errorName: o, showDialog: a }) {
+          t.transports.console({
+            data: [o, n].filter(Boolean),
             level: "error"
-          });
-          logger.transports.ipc({
+          }), t.transports.ipc({
             cmd: "errorHandler",
             error: {
-              cause: error?.cause,
-              code: error?.code,
-              name: error?.name,
-              message: error?.message,
-              stack: error?.stack
+              cause: n?.cause,
+              code: n?.code,
+              name: n?.name,
+              message: n?.message,
+              stack: n?.stack
             },
-            errorName,
-            logId: logger.logId,
-            showDialog
+            errorName: o,
+            logId: t.logId,
+            showDialog: a
           });
         }
-      });
-      if (typeof window === "object") {
-        window.addEventListener("message", (event) => {
-          const { cmd, logId, ...message } = event.data || {};
-          const instance = Logger.getInstance({ logId });
-          if (cmd === "message") {
-            instance.processMessage(message, { transports: ["console"] });
-          }
-        });
-      }
-      return new Proxy(logger, {
-        get(target, prop) {
-          if (typeof target[prop] !== "undefined") {
-            return target[prop];
-          }
-          return (...data) => logger.logData(data, { level: prop });
+      }), typeof window == "object" && window.addEventListener("message", (n) => {
+        const { cmd: o, logId: a, ...l } = n.data || {}, p = c.getInstance({ logId: a });
+        o === "message" && p.processMessage(l, { transports: ["console"] });
+      }), new Proxy(t, {
+        get(n, o) {
+          return typeof n[o] < "u" ? n[o] : (...a) => t.logData(a, { level: o });
         }
       });
     }
-  })(renderer);
-  return renderer.exports;
+  })(Y)), Y.exports;
 }
-var packageJson;
-var hasRequiredPackageJson;
-function requirePackageJson() {
-  if (hasRequiredPackageJson) return packageJson;
-  hasRequiredPackageJson = 1;
-  const fs = require$$0;
-  const path = require$$2$1;
-  packageJson = {
-    findAndReadPackageJson,
-    tryReadJsonAt
+var ne, Ie;
+function Mt() {
+  if (Ie) return ne;
+  Ie = 1;
+  const u = I, c = k;
+  ne = {
+    findAndReadPackageJson: s,
+    tryReadJsonAt: i
   };
-  function findAndReadPackageJson() {
-    return tryReadJsonAt(getMainModulePath()) || tryReadJsonAt(extractPathFromArgs()) || tryReadJsonAt(process.resourcesPath, "app.asar") || tryReadJsonAt(process.resourcesPath, "app") || tryReadJsonAt(process.cwd()) || { name: void 0, version: void 0 };
+  function s() {
+    return i(t()) || i(r()) || i(process.resourcesPath, "app.asar") || i(process.resourcesPath, "app") || i(process.cwd()) || { name: void 0, version: void 0 };
   }
-  function tryReadJsonAt(...searchPaths) {
-    if (!searchPaths[0]) {
-      return void 0;
-    }
-    try {
-      const searchPath = path.join(...searchPaths);
-      const fileName = findUp("package.json", searchPath);
-      if (!fileName) {
-        return void 0;
+  function i(...n) {
+    if (n[0])
+      try {
+        const o = c.join(...n), a = e("package.json", o);
+        if (!a)
+          return;
+        const l = JSON.parse(u.readFileSync(a, "utf8")), p = l?.productName || l?.name;
+        return !p || p.toLowerCase() === "electron" ? void 0 : p ? { name: p, version: l?.version } : void 0;
+      } catch {
+        return;
       }
-      const json = JSON.parse(fs.readFileSync(fileName, "utf8"));
-      const name2 = json?.productName || json?.name;
-      if (!name2 || name2.toLowerCase() === "electron") {
-        return void 0;
-      }
-      if (name2) {
-        return { name: name2, version: json?.version };
-      }
-      return void 0;
-    } catch (e) {
-      return void 0;
-    }
   }
-  function findUp(fileName, cwd2) {
-    let currentPath = cwd2;
-    while (true) {
-      const parsedPath = path.parse(currentPath);
-      const root = parsedPath.root;
-      const dir = parsedPath.dir;
-      if (fs.existsSync(path.join(currentPath, fileName))) {
-        return path.resolve(path.join(currentPath, fileName));
-      }
-      if (currentPath === root) {
+  function e(n, o) {
+    let a = o;
+    for (; ; ) {
+      const l = c.parse(a), p = l.root, f = l.dir;
+      if (u.existsSync(c.join(a, n)))
+        return c.resolve(c.join(a, n));
+      if (a === p)
         return null;
-      }
-      currentPath = dir;
+      a = f;
     }
   }
-  function extractPathFromArgs() {
-    const matchedArgs = process.argv.filter((arg) => {
-      return arg.indexOf("--user-data-dir=") === 0;
-    });
-    if (matchedArgs.length === 0 || typeof matchedArgs[0] !== "string") {
-      return null;
-    }
-    const userDataDir = matchedArgs[0];
-    return userDataDir.replace("--user-data-dir=", "");
+  function r() {
+    const n = process.argv.filter((a) => a.indexOf("--user-data-dir=") === 0);
+    return n.length === 0 || typeof n[0] != "string" ? null : n[0].replace("--user-data-dir=", "");
   }
-  function getMainModulePath() {
+  function t() {
     try {
       return require.main?.filename;
     } catch {
-      return void 0;
+      return;
     }
   }
-  return packageJson;
+  return ne;
 }
-var NodeExternalApi_1;
-var hasRequiredNodeExternalApi;
-function requireNodeExternalApi() {
-  if (hasRequiredNodeExternalApi) return NodeExternalApi_1;
-  hasRequiredNodeExternalApi = 1;
-  const childProcess = require$$0$1;
-  const os = require$$1;
-  const path = require$$2$1;
-  const packageJson2 = requirePackageJson();
-  class NodeExternalApi {
+var oe, Me;
+function lt() {
+  if (Me) return oe;
+  Me = 1;
+  const u = vt, c = W, s = k, i = Mt();
+  class e {
     appName = void 0;
     appPackageJson = void 0;
     platform = process.platform;
-    getAppLogPath(appName = this.getAppName()) {
-      if (this.platform === "darwin") {
-        return path.join(this.getSystemPathHome(), "Library/Logs", appName);
-      }
-      return path.join(this.getAppUserDataPath(appName), "logs");
+    getAppLogPath(t = this.getAppName()) {
+      return this.platform === "darwin" ? s.join(this.getSystemPathHome(), "Library/Logs", t) : s.join(this.getAppUserDataPath(t), "logs");
     }
     getAppName() {
-      const appName = this.appName || this.getAppPackageJson()?.name;
-      if (!appName) {
+      const t = this.appName || this.getAppPackageJson()?.name;
+      if (!t)
         throw new Error(
           "electron-log can't determine the app name. It tried these methods:\n1. Use `electron.app.name`\n2. Use productName or name from the nearest package.json`\nYou can also set it through log.transports.file.setAppName()"
         );
-      }
-      return appName;
+      return t;
     }
     /**
      * @private
      * @returns {undefined}
      */
     getAppPackageJson() {
-      if (typeof this.appPackageJson !== "object") {
-        this.appPackageJson = packageJson2.findAndReadPackageJson();
-      }
-      return this.appPackageJson;
+      return typeof this.appPackageJson != "object" && (this.appPackageJson = i.findAndReadPackageJson()), this.appPackageJson;
     }
-    getAppUserDataPath(appName = this.getAppName()) {
-      return appName ? path.join(this.getSystemPathAppData(), appName) : void 0;
+    getAppUserDataPath(t = this.getAppName()) {
+      return t ? s.join(this.getSystemPathAppData(), t) : void 0;
     }
     getAppVersion() {
       return this.getAppPackageJson()?.version;
@@ -1255,65 +860,52 @@ function requireNodeExternalApi() {
       return this.getAppLogPath();
     }
     getMacOsVersion() {
-      const release = Number(os.release().split(".")[0]);
-      if (release <= 19) {
-        return `10.${release - 4}`;
-      }
-      return release - 9;
+      const t = Number(c.release().split(".")[0]);
+      return t <= 19 ? `10.${t - 4}` : t - 9;
     }
     /**
      * @protected
      * @returns {string}
      */
     getOsVersion() {
-      let osName = os.type().replace("_", " ");
-      let osVersion = os.release();
-      if (osName === "Darwin") {
-        osName = "macOS";
-        osVersion = this.getMacOsVersion();
-      }
-      return `${osName} ${osVersion}`;
+      let t = c.type().replace("_", " "), n = c.release();
+      return t === "Darwin" && (t = "macOS", n = this.getMacOsVersion()), `${t} ${n}`;
     }
     /**
      * @return {PathVariables}
      */
     getPathVariables() {
-      const appName = this.getAppName();
-      const appVersion = this.getAppVersion();
-      const self = this;
+      const t = this.getAppName(), n = this.getAppVersion(), o = this;
       return {
         appData: this.getSystemPathAppData(),
-        appName,
-        appVersion,
+        appName: t,
+        appVersion: n,
         get electronDefaultDir() {
-          return self.getElectronLogPath();
+          return o.getElectronLogPath();
         },
         home: this.getSystemPathHome(),
-        libraryDefaultDir: this.getAppLogPath(appName),
+        libraryDefaultDir: this.getAppLogPath(t),
         libraryTemplate: this.getAppLogPath("{appName}"),
         temp: this.getSystemPathTemp(),
-        userData: this.getAppUserDataPath(appName)
+        userData: this.getAppUserDataPath(t)
       };
     }
     getSystemPathAppData() {
-      const home = this.getSystemPathHome();
+      const t = this.getSystemPathHome();
       switch (this.platform) {
-        case "darwin": {
-          return path.join(home, "Library/Application Support");
-        }
-        case "win32": {
-          return process.env.APPDATA || path.join(home, "AppData/Roaming");
-        }
-        default: {
-          return process.env.XDG_CONFIG_HOME || path.join(home, ".config");
-        }
+        case "darwin":
+          return s.join(t, "Library/Application Support");
+        case "win32":
+          return process.env.APPDATA || s.join(t, "AppData/Roaming");
+        default:
+          return process.env.XDG_CONFIG_HOME || s.join(t, ".config");
       }
     }
     getSystemPathHome() {
-      return os.homedir?.() || process.env.HOME;
+      return c.homedir?.() || process.env.HOME;
     }
     getSystemPathTemp() {
-      return os.tmpdir();
+      return c.tmpdir();
     }
     getVersions() {
       return {
@@ -1326,49 +918,46 @@ function requireNodeExternalApi() {
       return process.env.NODE_ENV === "development" || process.env.ELECTRON_IS_DEV === "1";
     }
     isElectron() {
-      return Boolean(process.versions.electron);
+      return !!process.versions.electron;
     }
-    onAppEvent(_eventName, _handler) {
+    onAppEvent(t, n) {
     }
-    onAppReady(handler) {
-      handler();
+    onAppReady(t) {
+      t();
     }
-    onEveryWebContentsEvent(eventName, handler) {
+    onEveryWebContentsEvent(t, n) {
     }
     /**
      * Listen to async messages sent from opposite process
      * @param {string} channel
      * @param {function} listener
      */
-    onIpc(channel, listener) {
+    onIpc(t, n) {
     }
-    onIpcInvoke(channel, listener) {
+    onIpcInvoke(t, n) {
     }
     /**
      * @param {string} url
      * @param {Function} [logFunction]
      */
-    openUrl(url, logFunction = console.error) {
-      const startMap = { darwin: "open", win32: "start", linux: "xdg-open" };
-      const start = startMap[process.platform] || "xdg-open";
-      childProcess.exec(`${start} ${url}`, {}, (err) => {
-        if (err) {
-          logFunction(err);
-        }
+    openUrl(t, n = console.error) {
+      const a = { darwin: "open", win32: "start", linux: "xdg-open" }[process.platform] || "xdg-open";
+      u.exec(`${a} ${t}`, {}, (l) => {
+        l && n(l);
       });
     }
-    setAppName(appName) {
-      this.appName = appName;
+    setAppName(t) {
+      this.appName = t;
     }
-    setPlatform(platform) {
-      this.platform = platform;
+    setPlatform(t) {
+      this.platform = t;
     }
     setPreloadFileForSessions({
-      filePath,
+      filePath: t,
       // eslint-disable-line no-unused-vars
-      includeFutureSession = true,
+      includeFutureSession: n = !0,
       // eslint-disable-line no-unused-vars
-      getSessions = () => []
+      getSessions: o = () => []
       // eslint-disable-line no-unused-vars
     }) {
     }
@@ -1377,22 +966,19 @@ function requireNodeExternalApi() {
      * @param {string} channel
      * @param {any} message
      */
-    sendIpc(channel, message) {
+    sendIpc(t, n) {
     }
-    showErrorBox(title, message) {
+    showErrorBox(t, n) {
     }
   }
-  NodeExternalApi_1 = NodeExternalApi;
-  return NodeExternalApi_1;
+  return oe = e, oe;
 }
-var ElectronExternalApi_1;
-var hasRequiredElectronExternalApi;
-function requireElectronExternalApi() {
-  if (hasRequiredElectronExternalApi) return ElectronExternalApi_1;
-  hasRequiredElectronExternalApi = 1;
-  const path = require$$2$1;
-  const NodeExternalApi = requireNodeExternalApi();
-  class ElectronExternalApi extends NodeExternalApi {
+var se, Ue;
+function Ut() {
+  if (Ue) return se;
+  Ue = 1;
+  const u = k, c = lt();
+  class s extends c {
     /**
      * @type {typeof Electron}
      */
@@ -1401,28 +987,27 @@ function requireElectronExternalApi() {
      * @param {object} options
      * @param {typeof Electron} [options.electron]
      */
-    constructor({ electron } = {}) {
-      super();
-      this.electron = electron;
+    constructor({ electron: e } = {}) {
+      super(), this.electron = e;
     }
     getAppName() {
-      let appName;
+      let e;
       try {
-        appName = this.appName || this.electron.app?.name || this.electron.app?.getName();
+        e = this.appName || this.electron.app?.name || this.electron.app?.getName();
       } catch {
       }
-      return appName || super.getAppName();
+      return e || super.getAppName();
     }
-    getAppUserDataPath(appName) {
-      return this.getPath("userData") || super.getAppUserDataPath(appName);
+    getAppUserDataPath(e) {
+      return this.getPath("userData") || super.getAppUserDataPath(e);
     }
     getAppVersion() {
-      let appVersion;
+      let e;
       try {
-        appVersion = this.electron.app?.getVersion();
+        e = this.electron.app?.getVersion();
       } catch {
       }
-      return appVersion || super.getAppVersion();
+      return e || super.getAppVersion();
     }
     getElectronLogPath() {
       return this.getPath("logs") || super.getElectronLogPath();
@@ -1432,11 +1017,11 @@ function requireElectronExternalApi() {
      * @param {any} name
      * @returns {string|undefined}
      */
-    getPath(name2) {
+    getPath(e) {
       try {
-        return this.electron.app?.getPath(name2);
+        return this.electron.app?.getPath(e);
       } catch {
-        return void 0;
+        return;
       }
     }
     getVersions() {
@@ -1450,43 +1035,26 @@ function requireElectronExternalApi() {
       return this.getPath("appData") || super.getSystemPathAppData();
     }
     isDev() {
-      if (this.electron.app?.isPackaged !== void 0) {
-        return !this.electron.app.isPackaged;
-      }
-      if (typeof process.execPath === "string") {
-        const execFileName = path.basename(process.execPath).toLowerCase();
-        return execFileName.startsWith("electron");
-      }
-      return super.isDev();
+      return this.electron.app?.isPackaged !== void 0 ? !this.electron.app.isPackaged : typeof process.execPath == "string" ? u.basename(process.execPath).toLowerCase().startsWith("electron") : super.isDev();
     }
-    onAppEvent(eventName, handler) {
-      this.electron.app?.on(eventName, handler);
-      return () => {
-        this.electron.app?.off(eventName, handler);
+    onAppEvent(e, r) {
+      return this.electron.app?.on(e, r), () => {
+        this.electron.app?.off(e, r);
       };
     }
-    onAppReady(handler) {
-      if (this.electron.app?.isReady()) {
-        handler();
-      } else if (this.electron.app?.once) {
-        this.electron.app?.once("ready", handler);
-      } else {
-        handler();
-      }
+    onAppReady(e) {
+      this.electron.app?.isReady() ? e() : this.electron.app?.once ? this.electron.app?.once("ready", e) : e();
     }
-    onEveryWebContentsEvent(eventName, handler) {
-      this.electron.webContents?.getAllWebContents()?.forEach((webContents) => {
-        webContents.on(eventName, handler);
-      });
-      this.electron.app?.on("web-contents-created", onWebContentsCreated);
-      return () => {
-        this.electron.webContents?.getAllWebContents().forEach((webContents) => {
-          webContents.off(eventName, handler);
-        });
-        this.electron.app?.off("web-contents-created", onWebContentsCreated);
+    onEveryWebContentsEvent(e, r) {
+      return this.electron.webContents?.getAllWebContents()?.forEach((n) => {
+        n.on(e, r);
+      }), this.electron.app?.on("web-contents-created", t), () => {
+        this.electron.webContents?.getAllWebContents().forEach((n) => {
+          n.off(e, r);
+        }), this.electron.app?.off("web-contents-created", t);
       };
-      function onWebContentsCreated(_, webContents) {
-        webContents.on(eventName, handler);
+      function t(n, o) {
+        o.on(e, r);
       }
     }
     /**
@@ -1494,42 +1062,35 @@ function requireElectronExternalApi() {
      * @param {string} channel
      * @param {function} listener
      */
-    onIpc(channel, listener) {
-      this.electron.ipcMain?.on(channel, listener);
+    onIpc(e, r) {
+      this.electron.ipcMain?.on(e, r);
     }
-    onIpcInvoke(channel, listener) {
-      this.electron.ipcMain?.handle?.(channel, listener);
+    onIpcInvoke(e, r) {
+      this.electron.ipcMain?.handle?.(e, r);
     }
     /**
      * @param {string} url
      * @param {Function} [logFunction]
      */
-    openUrl(url, logFunction = console.error) {
-      this.electron.shell?.openExternal(url).catch(logFunction);
+    openUrl(e, r = console.error) {
+      this.electron.shell?.openExternal(e).catch(r);
     }
     setPreloadFileForSessions({
-      filePath,
-      includeFutureSession = true,
-      getSessions = () => [this.electron.session?.defaultSession]
+      filePath: e,
+      includeFutureSession: r = !0,
+      getSessions: t = () => [this.electron.session?.defaultSession]
     }) {
-      for (const session of getSessions().filter(Boolean)) {
-        setPreload(session);
-      }
-      if (includeFutureSession) {
-        this.onAppEvent("session-created", (session) => {
-          setPreload(session);
-        });
-      }
-      function setPreload(session) {
-        if (typeof session.registerPreloadScript === "function") {
-          session.registerPreloadScript({
-            filePath,
-            id: "electron-log-preload",
-            type: "frame"
-          });
-        } else {
-          session.setPreloads([...session.getPreloads(), filePath]);
-        }
+      for (const o of t().filter(Boolean))
+        n(o);
+      r && this.onAppEvent("session-created", (o) => {
+        n(o);
+      });
+      function n(o) {
+        typeof o.registerPreloadScript == "function" ? o.registerPreloadScript({
+          filePath: e,
+          id: "electron-log-preload",
+          type: "frame"
+        }) : o.setPreloads([...o.getPreloads(), e]);
       }
     }
     /**
@@ -1537,701 +1098,505 @@ function requireElectronExternalApi() {
      * @param {string} channel
      * @param {any} message
      */
-    sendIpc(channel, message) {
-      this.electron.BrowserWindow?.getAllWindows()?.forEach((wnd) => {
-        if (wnd.webContents?.isDestroyed() === false && wnd.webContents?.isCrashed() === false) {
-          wnd.webContents.send(channel, message);
-        }
+    sendIpc(e, r) {
+      this.electron.BrowserWindow?.getAllWindows()?.forEach((t) => {
+        t.webContents?.isDestroyed() === !1 && t.webContents?.isCrashed() === !1 && t.webContents.send(e, r);
       });
     }
-    showErrorBox(title, message) {
-      this.electron.dialog?.showErrorBox(title, message);
+    showErrorBox(e, r) {
+      this.electron.dialog?.showErrorBox(e, r);
     }
   }
-  ElectronExternalApi_1 = ElectronExternalApi;
-  return ElectronExternalApi_1;
+  return se = s, se;
 }
-var initialize;
-var hasRequiredInitialize;
-function requireInitialize() {
-  if (hasRequiredInitialize) return initialize;
-  hasRequiredInitialize = 1;
-  const fs = require$$0;
-  const os = require$$1;
-  const path = require$$2$1;
-  const preloadInitializeFn = requireElectronLogPreload();
-  let preloadInitialized = false;
-  let spyConsoleInitialized = false;
-  initialize = {
+var ie, ze;
+function zt() {
+  if (ze) return ie;
+  ze = 1;
+  const u = I, c = W, s = k, i = at();
+  let e = !1, r = !1;
+  ie = {
     initialize({
-      externalApi,
-      getSessions,
-      includeFutureSession,
-      logger,
-      preload = true,
-      spyRendererConsole = false
+      externalApi: o,
+      getSessions: a,
+      includeFutureSession: l,
+      logger: p,
+      preload: f = !0,
+      spyRendererConsole: h = !1
     }) {
-      externalApi.onAppReady(() => {
+      o.onAppReady(() => {
         try {
-          if (preload) {
-            initializePreload({
-              externalApi,
-              getSessions,
-              includeFutureSession,
-              logger,
-              preloadOption: preload
-            });
-          }
-          if (spyRendererConsole) {
-            initializeSpyRendererConsole({ externalApi, logger });
-          }
-        } catch (err) {
-          logger.warn(err);
+          f && t({
+            externalApi: o,
+            getSessions: a,
+            includeFutureSession: l,
+            logger: p,
+            preloadOption: f
+          }), h && n({ externalApi: o, logger: p });
+        } catch (S) {
+          p.warn(S);
         }
       });
     }
   };
-  function initializePreload({
-    externalApi,
-    getSessions,
-    includeFutureSession,
-    logger,
-    preloadOption
+  function t({
+    externalApi: o,
+    getSessions: a,
+    includeFutureSession: l,
+    logger: p,
+    preloadOption: f
   }) {
-    let preloadPath = typeof preloadOption === "string" ? preloadOption : void 0;
-    if (preloadInitialized) {
-      logger.warn(new Error("log.initialize({ preload }) already called").stack);
+    let h = typeof f == "string" ? f : void 0;
+    if (e) {
+      p.warn(new Error("log.initialize({ preload }) already called").stack);
       return;
     }
-    preloadInitialized = true;
+    e = !0;
     try {
-      preloadPath = path.resolve(
+      h = s.resolve(
         __dirname,
         "../renderer/electron-log-preload.js"
       );
     } catch {
     }
-    if (!preloadPath || !fs.existsSync(preloadPath)) {
-      preloadPath = path.join(
-        externalApi.getAppUserDataPath() || os.tmpdir(),
+    if (!h || !u.existsSync(h)) {
+      h = s.join(
+        o.getAppUserDataPath() || c.tmpdir(),
         "electron-log-preload.js"
       );
-      const preloadCode = `
+      const S = `
       try {
-        (${preloadInitializeFn.toString()})(require('electron'));
+        (${i.toString()})(require('electron'));
       } catch(e) {
         console.error(e);
       }
     `;
-      fs.writeFileSync(preloadPath, preloadCode, "utf8");
+      u.writeFileSync(h, S, "utf8");
     }
-    externalApi.setPreloadFileForSessions({
-      filePath: preloadPath,
-      includeFutureSession,
-      getSessions
+    o.setPreloadFileForSessions({
+      filePath: h,
+      includeFutureSession: l,
+      getSessions: a
     });
   }
-  function initializeSpyRendererConsole({ externalApi, logger }) {
-    if (spyConsoleInitialized) {
-      logger.warn(
+  function n({ externalApi: o, logger: a }) {
+    if (r) {
+      a.warn(
         new Error("log.initialize({ spyRendererConsole }) already called").stack
       );
       return;
     }
-    spyConsoleInitialized = true;
-    const levels = ["debug", "info", "warn", "error"];
-    externalApi.onEveryWebContentsEvent(
+    r = !0;
+    const l = ["debug", "info", "warn", "error"];
+    o.onEveryWebContentsEvent(
       "console-message",
-      (event, level, message) => {
-        logger.processMessage({
-          data: [message],
-          level: levels[level],
+      (p, f, h) => {
+        a.processMessage({
+          data: [h],
+          level: l[f],
           variables: { processType: "renderer" }
         });
       }
     );
   }
-  return initialize;
+  return ie;
 }
-var ErrorHandler_1;
-var hasRequiredErrorHandler;
-function requireErrorHandler() {
-  if (hasRequiredErrorHandler) return ErrorHandler_1;
-  hasRequiredErrorHandler = 1;
-  class ErrorHandler {
+var ae, We;
+function Wt() {
+  if (We) return ae;
+  We = 1;
+  class u {
     externalApi = void 0;
-    isActive = false;
+    isActive = !1;
     logFn = void 0;
     onError = void 0;
-    showDialog = true;
+    showDialog = !0;
     constructor({
-      externalApi,
-      logFn = void 0,
-      onError = void 0,
-      showDialog = void 0
+      externalApi: i,
+      logFn: e = void 0,
+      onError: r = void 0,
+      showDialog: t = void 0
     } = {}) {
-      this.createIssue = this.createIssue.bind(this);
-      this.handleError = this.handleError.bind(this);
-      this.handleRejection = this.handleRejection.bind(this);
-      this.setOptions({ externalApi, logFn, onError, showDialog });
-      this.startCatching = this.startCatching.bind(this);
-      this.stopCatching = this.stopCatching.bind(this);
+      this.createIssue = this.createIssue.bind(this), this.handleError = this.handleError.bind(this), this.handleRejection = this.handleRejection.bind(this), this.setOptions({ externalApi: i, logFn: e, onError: r, showDialog: t }), this.startCatching = this.startCatching.bind(this), this.stopCatching = this.stopCatching.bind(this);
     }
-    handle(error, {
-      logFn = this.logFn,
-      onError = this.onError,
-      processType = "browser",
-      showDialog = this.showDialog,
-      errorName = ""
+    handle(i, {
+      logFn: e = this.logFn,
+      onError: r = this.onError,
+      processType: t = "browser",
+      showDialog: n = this.showDialog,
+      errorName: o = ""
     } = {}) {
-      error = normalizeError(error);
+      i = c(i);
       try {
-        if (typeof onError === "function") {
-          const versions = this.externalApi?.getVersions() || {};
-          const createIssue = this.createIssue;
-          const result = onError({
-            createIssue,
-            error,
-            errorName,
-            processType,
-            versions
-          });
-          if (result === false) {
+        if (typeof r == "function") {
+          const a = this.externalApi?.getVersions() || {}, l = this.createIssue;
+          if (r({
+            createIssue: l,
+            error: i,
+            errorName: o,
+            processType: t,
+            versions: a
+          }) === !1)
             return;
-          }
         }
-        errorName ? logFn(errorName, error) : logFn(error);
-        if (showDialog && !errorName.includes("rejection") && this.externalApi) {
-          this.externalApi.showErrorBox(
-            `A JavaScript error occurred in the ${processType} process`,
-            error.stack
-          );
-        }
+        o ? e(o, i) : e(i), n && !o.includes("rejection") && this.externalApi && this.externalApi.showErrorBox(
+          `A JavaScript error occurred in the ${t} process`,
+          i.stack
+        );
       } catch {
-        console.error(error);
+        console.error(i);
       }
     }
-    setOptions({ externalApi, logFn, onError, showDialog }) {
-      if (typeof externalApi === "object") {
-        this.externalApi = externalApi;
-      }
-      if (typeof logFn === "function") {
-        this.logFn = logFn;
-      }
-      if (typeof onError === "function") {
-        this.onError = onError;
-      }
-      if (typeof showDialog === "boolean") {
-        this.showDialog = showDialog;
-      }
+    setOptions({ externalApi: i, logFn: e, onError: r, showDialog: t }) {
+      typeof i == "object" && (this.externalApi = i), typeof e == "function" && (this.logFn = e), typeof r == "function" && (this.onError = r), typeof t == "boolean" && (this.showDialog = t);
     }
-    startCatching({ onError, showDialog } = {}) {
-      if (this.isActive) {
-        return;
-      }
-      this.isActive = true;
-      this.setOptions({ onError, showDialog });
-      process.on("uncaughtException", this.handleError);
-      process.on("unhandledRejection", this.handleRejection);
+    startCatching({ onError: i, showDialog: e } = {}) {
+      this.isActive || (this.isActive = !0, this.setOptions({ onError: i, showDialog: e }), process.on("uncaughtException", this.handleError), process.on("unhandledRejection", this.handleRejection));
     }
     stopCatching() {
-      this.isActive = false;
-      process.removeListener("uncaughtException", this.handleError);
-      process.removeListener("unhandledRejection", this.handleRejection);
+      this.isActive = !1, process.removeListener("uncaughtException", this.handleError), process.removeListener("unhandledRejection", this.handleRejection);
     }
-    createIssue(pageUrl, queryParams) {
+    createIssue(i, e) {
       this.externalApi?.openUrl(
-        `${pageUrl}?${new URLSearchParams(queryParams).toString()}`
+        `${i}?${new URLSearchParams(e).toString()}`
       );
     }
-    handleError(error) {
-      this.handle(error, { errorName: "Unhandled" });
+    handleError(i) {
+      this.handle(i, { errorName: "Unhandled" });
     }
-    handleRejection(reason) {
-      const error = reason instanceof Error ? reason : new Error(JSON.stringify(reason));
-      this.handle(error, { errorName: "Unhandled rejection" });
+    handleRejection(i) {
+      const e = i instanceof Error ? i : new Error(JSON.stringify(i));
+      this.handle(e, { errorName: "Unhandled rejection" });
     }
   }
-  function normalizeError(e) {
-    if (e instanceof Error) {
-      return e;
-    }
-    if (e && typeof e === "object") {
-      if (e.message) {
-        return Object.assign(new Error(e.message), e);
-      }
+  function c(s) {
+    if (s instanceof Error)
+      return s;
+    if (s && typeof s == "object") {
+      if (s.message)
+        return Object.assign(new Error(s.message), s);
       try {
-        return new Error(JSON.stringify(e));
-      } catch (serErr) {
-        return new Error(`Couldn't normalize error ${String(e)}: ${serErr}`);
+        return new Error(JSON.stringify(s));
+      } catch (i) {
+        return new Error(`Couldn't normalize error ${String(s)}: ${i}`);
       }
     }
-    return new Error(`Can't normalize error ${String(e)}`);
+    return new Error(`Can't normalize error ${String(s)}`);
   }
-  ErrorHandler_1 = ErrorHandler;
-  return ErrorHandler_1;
+  return ae = u, ae;
 }
-var EventLogger_1;
-var hasRequiredEventLogger;
-function requireEventLogger() {
-  if (hasRequiredEventLogger) return EventLogger_1;
-  hasRequiredEventLogger = 1;
-  class EventLogger {
+var ce, He;
+function Ht() {
+  if (He) return ce;
+  He = 1;
+  class u {
     disposers = [];
     format = "{eventSource}#{eventName}:";
     formatters = {
       app: {
-        "certificate-error": ({ args }) => {
-          return this.arrayToObject(args.slice(1, 4), [
-            "url",
-            "error",
-            "certificate"
-          ]);
-        },
-        "child-process-gone": ({ args }) => {
-          return args.length === 1 ? args[0] : args;
-        },
-        "render-process-gone": ({ args: [webContents, details] }) => {
-          return details && typeof details === "object" ? { ...details, ...this.getWebContentsDetails(webContents) } : [];
-        }
+        "certificate-error": ({ args: s }) => this.arrayToObject(s.slice(1, 4), [
+          "url",
+          "error",
+          "certificate"
+        ]),
+        "child-process-gone": ({ args: s }) => s.length === 1 ? s[0] : s,
+        "render-process-gone": ({ args: [s, i] }) => i && typeof i == "object" ? { ...i, ...this.getWebContentsDetails(s) } : []
       },
       webContents: {
-        "console-message": ({ args: [level, message, line, sourceId] }) => {
-          if (level < 3) {
-            return void 0;
-          }
-          return { message, source: `${sourceId}:${line}` };
+        "console-message": ({ args: [s, i, e, r] }) => {
+          if (!(s < 3))
+            return { message: i, source: `${r}:${e}` };
         },
-        "did-fail-load": ({ args }) => {
-          return this.arrayToObject(args, [
-            "errorCode",
-            "errorDescription",
-            "validatedURL",
-            "isMainFrame",
-            "frameProcessId",
-            "frameRoutingId"
-          ]);
-        },
-        "did-fail-provisional-load": ({ args }) => {
-          return this.arrayToObject(args, [
-            "errorCode",
-            "errorDescription",
-            "validatedURL",
-            "isMainFrame",
-            "frameProcessId",
-            "frameRoutingId"
-          ]);
-        },
-        "plugin-crashed": ({ args }) => {
-          return this.arrayToObject(args, ["name", "version"]);
-        },
-        "preload-error": ({ args }) => {
-          return this.arrayToObject(args, ["preloadPath", "error"]);
-        }
+        "did-fail-load": ({ args: s }) => this.arrayToObject(s, [
+          "errorCode",
+          "errorDescription",
+          "validatedURL",
+          "isMainFrame",
+          "frameProcessId",
+          "frameRoutingId"
+        ]),
+        "did-fail-provisional-load": ({ args: s }) => this.arrayToObject(s, [
+          "errorCode",
+          "errorDescription",
+          "validatedURL",
+          "isMainFrame",
+          "frameProcessId",
+          "frameRoutingId"
+        ]),
+        "plugin-crashed": ({ args: s }) => this.arrayToObject(s, ["name", "version"]),
+        "preload-error": ({ args: s }) => this.arrayToObject(s, ["preloadPath", "error"])
       }
     };
     events = {
       app: {
-        "certificate-error": true,
-        "child-process-gone": true,
-        "render-process-gone": true
+        "certificate-error": !0,
+        "child-process-gone": !0,
+        "render-process-gone": !0
       },
       webContents: {
         // 'console-message': true,
-        "did-fail-load": true,
-        "did-fail-provisional-load": true,
-        "plugin-crashed": true,
-        "preload-error": true,
-        "unresponsive": true
+        "did-fail-load": !0,
+        "did-fail-provisional-load": !0,
+        "plugin-crashed": !0,
+        "preload-error": !0,
+        unresponsive: !0
       }
     };
     externalApi = void 0;
     level = "error";
     scope = "";
-    constructor(options = {}) {
-      this.setOptions(options);
+    constructor(s = {}) {
+      this.setOptions(s);
     }
     setOptions({
-      events,
-      externalApi,
-      level,
-      logger,
-      format: format2,
-      formatters,
-      scope: scope2
+      events: s,
+      externalApi: i,
+      level: e,
+      logger: r,
+      format: t,
+      formatters: n,
+      scope: o
     }) {
-      if (typeof events === "object") {
-        this.events = events;
-      }
-      if (typeof externalApi === "object") {
-        this.externalApi = externalApi;
-      }
-      if (typeof level === "string") {
-        this.level = level;
-      }
-      if (typeof logger === "object") {
-        this.logger = logger;
-      }
-      if (typeof format2 === "string" || typeof format2 === "function") {
-        this.format = format2;
-      }
-      if (typeof formatters === "object") {
-        this.formatters = formatters;
-      }
-      if (typeof scope2 === "string") {
-        this.scope = scope2;
-      }
+      typeof s == "object" && (this.events = s), typeof i == "object" && (this.externalApi = i), typeof e == "string" && (this.level = e), typeof r == "object" && (this.logger = r), (typeof t == "string" || typeof t == "function") && (this.format = t), typeof n == "object" && (this.formatters = n), typeof o == "string" && (this.scope = o);
     }
-    startLogging(options = {}) {
-      this.setOptions(options);
-      this.disposeListeners();
-      for (const eventName of this.getEventNames(this.events.app)) {
+    startLogging(s = {}) {
+      this.setOptions(s), this.disposeListeners();
+      for (const i of this.getEventNames(this.events.app))
         this.disposers.push(
-          this.externalApi.onAppEvent(eventName, (...handlerArgs) => {
-            this.handleEvent({ eventSource: "app", eventName, handlerArgs });
+          this.externalApi.onAppEvent(i, (...e) => {
+            this.handleEvent({ eventSource: "app", eventName: i, handlerArgs: e });
           })
         );
-      }
-      for (const eventName of this.getEventNames(this.events.webContents)) {
+      for (const i of this.getEventNames(this.events.webContents))
         this.disposers.push(
           this.externalApi.onEveryWebContentsEvent(
-            eventName,
-            (...handlerArgs) => {
+            i,
+            (...e) => {
               this.handleEvent(
-                { eventSource: "webContents", eventName, handlerArgs }
+                { eventSource: "webContents", eventName: i, handlerArgs: e }
               );
             }
           )
         );
-      }
     }
     stopLogging() {
       this.disposeListeners();
     }
-    arrayToObject(array, fieldNames) {
-      const obj = {};
-      fieldNames.forEach((fieldName, index) => {
-        obj[fieldName] = array[index];
-      });
-      if (array.length > fieldNames.length) {
-        obj.unknownArgs = array.slice(fieldNames.length);
-      }
-      return obj;
+    arrayToObject(s, i) {
+      const e = {};
+      return i.forEach((r, t) => {
+        e[r] = s[t];
+      }), s.length > i.length && (e.unknownArgs = s.slice(i.length)), e;
     }
     disposeListeners() {
-      this.disposers.forEach((disposer) => disposer());
-      this.disposers = [];
+      this.disposers.forEach((s) => s()), this.disposers = [];
     }
-    formatEventLog({ eventName, eventSource, handlerArgs }) {
-      const [event, ...args] = handlerArgs;
-      if (typeof this.format === "function") {
-        return this.format({ args, event, eventName, eventSource });
-      }
-      const formatter = this.formatters[eventSource]?.[eventName];
-      let formattedArgs = args;
-      if (typeof formatter === "function") {
-        formattedArgs = formatter({ args, event, eventName, eventSource });
-      }
-      if (!formattedArgs) {
-        return void 0;
-      }
-      const eventData = {};
-      if (Array.isArray(formattedArgs)) {
-        eventData.args = formattedArgs;
-      } else if (typeof formattedArgs === "object") {
-        Object.assign(eventData, formattedArgs);
-      }
-      if (eventSource === "webContents") {
-        Object.assign(eventData, this.getWebContentsDetails(event?.sender));
-      }
-      const title = this.format.replace("{eventSource}", eventSource === "app" ? "App" : "WebContents").replace("{eventName}", eventName);
-      return [title, eventData];
+    formatEventLog({ eventName: s, eventSource: i, handlerArgs: e }) {
+      const [r, ...t] = e;
+      if (typeof this.format == "function")
+        return this.format({ args: t, event: r, eventName: s, eventSource: i });
+      const n = this.formatters[i]?.[s];
+      let o = t;
+      if (typeof n == "function" && (o = n({ args: t, event: r, eventName: s, eventSource: i })), !o)
+        return;
+      const a = {};
+      return Array.isArray(o) ? a.args = o : typeof o == "object" && Object.assign(a, o), i === "webContents" && Object.assign(a, this.getWebContentsDetails(r?.sender)), [this.format.replace("{eventSource}", i === "app" ? "App" : "WebContents").replace("{eventName}", s), a];
     }
-    getEventNames(eventMap) {
-      if (!eventMap || typeof eventMap !== "object") {
-        return [];
-      }
-      return Object.entries(eventMap).filter(([_, listen]) => listen).map(([eventName]) => eventName);
+    getEventNames(s) {
+      return !s || typeof s != "object" ? [] : Object.entries(s).filter(([i, e]) => e).map(([i]) => i);
     }
-    getWebContentsDetails(webContents) {
-      if (!webContents?.loadURL) {
+    getWebContentsDetails(s) {
+      if (!s?.loadURL)
         return {};
-      }
       try {
         return {
           webContents: {
-            id: webContents.id,
-            url: webContents.getURL()
+            id: s.id,
+            url: s.getURL()
           }
         };
       } catch {
         return {};
       }
     }
-    handleEvent({ eventName, eventSource, handlerArgs }) {
-      const log2 = this.formatEventLog({ eventName, eventSource, handlerArgs });
-      if (log2) {
-        const logFns = this.scope ? this.logger.scope(this.scope) : this.logger;
-        logFns?.[this.level]?.(...log2);
-      }
+    handleEvent({ eventName: s, eventSource: i, handlerArgs: e }) {
+      const r = this.formatEventLog({ eventName: s, eventSource: i, handlerArgs: e });
+      r && (this.scope ? this.logger.scope(this.scope) : this.logger)?.[this.level]?.(...r);
     }
   }
-  EventLogger_1 = EventLogger;
-  return EventLogger_1;
+  return ce = u, ce;
 }
-var format;
-var hasRequiredFormat;
-function requireFormat() {
-  if (hasRequiredFormat) return format;
-  hasRequiredFormat = 1;
-  const { transform } = requireTransform();
-  format = {
-    concatFirstStringElements,
-    formatScope,
-    formatText,
-    formatVariables,
-    timeZoneFromOffset,
-    format({ message, logger, transport, data = message?.data }) {
-      switch (typeof transport.format) {
-        case "string": {
-          return transform({
-            message,
-            logger,
-            transforms: [formatVariables, formatScope, formatText],
-            transport,
-            initialData: [transport.format, ...data]
+var le, Be;
+function ut() {
+  if (Be) return le;
+  Be = 1;
+  const { transform: u } = N();
+  le = {
+    concatFirstStringElements: c,
+    formatScope: i,
+    formatText: r,
+    formatVariables: e,
+    timeZoneFromOffset: s,
+    format({ message: t, logger: n, transport: o, data: a = t?.data }) {
+      switch (typeof o.format) {
+        case "string":
+          return u({
+            message: t,
+            logger: n,
+            transforms: [e, i, r],
+            transport: o,
+            initialData: [o.format, ...a]
           });
-        }
-        case "function": {
-          return transport.format({
-            data,
-            level: message?.level || "info",
-            logger,
-            message,
-            transport
+        case "function":
+          return o.format({
+            data: a,
+            level: t?.level || "info",
+            logger: n,
+            message: t,
+            transport: o
           });
-        }
-        default: {
-          return data;
-        }
+        default:
+          return a;
       }
     }
   };
-  function concatFirstStringElements({ data }) {
-    if (typeof data[0] !== "string" || typeof data[1] !== "string") {
-      return data;
-    }
-    if (data[0].match(/%[1cdfiOos]/)) {
-      return data;
-    }
-    return [`${data[0]} ${data[1]}`, ...data.slice(2)];
+  function c({ data: t }) {
+    return typeof t[0] != "string" || typeof t[1] != "string" || t[0].match(/%[1cdfiOos]/) ? t : [`${t[0]} ${t[1]}`, ...t.slice(2)];
   }
-  function timeZoneFromOffset(minutesOffset) {
-    const minutesPositive = Math.abs(minutesOffset);
-    const sign = minutesOffset > 0 ? "-" : "+";
-    const hours = Math.floor(minutesPositive / 60).toString().padStart(2, "0");
-    const minutes = (minutesPositive % 60).toString().padStart(2, "0");
-    return `${sign}${hours}:${minutes}`;
+  function s(t) {
+    const n = Math.abs(t), o = t > 0 ? "-" : "+", a = Math.floor(n / 60).toString().padStart(2, "0"), l = (n % 60).toString().padStart(2, "0");
+    return `${o}${a}:${l}`;
   }
-  function formatScope({ data, logger, message }) {
-    const { defaultLabel, labelLength } = logger?.scope || {};
-    const template = data[0];
-    let label = message.scope;
-    if (!label) {
-      label = defaultLabel;
-    }
-    let scopeText;
-    if (label === "") {
-      scopeText = labelLength > 0 ? "".padEnd(labelLength + 3) : "";
-    } else if (typeof label === "string") {
-      scopeText = ` (${label})`.padEnd(labelLength + 3);
-    } else {
-      scopeText = "";
-    }
-    data[0] = template.replace("{scope}", scopeText);
-    return data;
+  function i({ data: t, logger: n, message: o }) {
+    const { defaultLabel: a, labelLength: l } = n?.scope || {}, p = t[0];
+    let f = o.scope;
+    f || (f = a);
+    let h;
+    return f === "" ? h = l > 0 ? "".padEnd(l + 3) : "" : typeof f == "string" ? h = ` (${f})`.padEnd(l + 3) : h = "", t[0] = p.replace("{scope}", h), t;
   }
-  function formatVariables({ data, message }) {
-    let template = data[0];
-    if (typeof template !== "string") {
-      return data;
-    }
-    template = template.replace("{level}]", `${message.level}]`.padEnd(6, " "));
-    const date = message.date || /* @__PURE__ */ new Date();
-    data[0] = template.replace(/\{(\w+)}/g, (substring, name2) => {
-      switch (name2) {
+  function e({ data: t, message: n }) {
+    let o = t[0];
+    if (typeof o != "string")
+      return t;
+    o = o.replace("{level}]", `${n.level}]`.padEnd(6, " "));
+    const a = n.date || /* @__PURE__ */ new Date();
+    return t[0] = o.replace(/\{(\w+)}/g, (l, p) => {
+      switch (p) {
         case "level":
-          return message.level || "info";
+          return n.level || "info";
         case "logId":
-          return message.logId;
+          return n.logId;
         case "y":
-          return date.getFullYear().toString(10);
+          return a.getFullYear().toString(10);
         case "m":
-          return (date.getMonth() + 1).toString(10).padStart(2, "0");
+          return (a.getMonth() + 1).toString(10).padStart(2, "0");
         case "d":
-          return date.getDate().toString(10).padStart(2, "0");
+          return a.getDate().toString(10).padStart(2, "0");
         case "h":
-          return date.getHours().toString(10).padStart(2, "0");
+          return a.getHours().toString(10).padStart(2, "0");
         case "i":
-          return date.getMinutes().toString(10).padStart(2, "0");
+          return a.getMinutes().toString(10).padStart(2, "0");
         case "s":
-          return date.getSeconds().toString(10).padStart(2, "0");
+          return a.getSeconds().toString(10).padStart(2, "0");
         case "ms":
-          return date.getMilliseconds().toString(10).padStart(3, "0");
+          return a.getMilliseconds().toString(10).padStart(3, "0");
         case "z":
-          return timeZoneFromOffset(date.getTimezoneOffset());
+          return s(a.getTimezoneOffset());
         case "iso":
-          return date.toISOString();
-        default: {
-          return message.variables?.[name2] || substring;
-        }
+          return a.toISOString();
+        default:
+          return n.variables?.[p] || l;
       }
-    }).trim();
-    return data;
+    }).trim(), t;
   }
-  function formatText({ data }) {
-    const template = data[0];
-    if (typeof template !== "string") {
-      return data;
-    }
-    const textTplPosition = template.lastIndexOf("{text}");
-    if (textTplPosition === template.length - 6) {
-      data[0] = template.replace(/\s?{text}/, "");
-      if (data[0] === "") {
-        data.shift();
-      }
-      return data;
-    }
-    const templatePieces = template.split("{text}");
-    let result = [];
-    if (templatePieces[0] !== "") {
-      result.push(templatePieces[0]);
-    }
-    result = result.concat(data.slice(1));
-    if (templatePieces[1] !== "") {
-      result.push(templatePieces[1]);
-    }
-    return result;
+  function r({ data: t }) {
+    const n = t[0];
+    if (typeof n != "string")
+      return t;
+    if (n.lastIndexOf("{text}") === n.length - 6)
+      return t[0] = n.replace(/\s?{text}/, ""), t[0] === "" && t.shift(), t;
+    const a = n.split("{text}");
+    let l = [];
+    return a[0] !== "" && l.push(a[0]), l = l.concat(t.slice(1)), a[1] !== "" && l.push(a[1]), l;
   }
-  return format;
+  return le;
 }
-var object = { exports: {} };
-var hasRequiredObject;
-function requireObject() {
-  if (hasRequiredObject) return object.exports;
-  hasRequiredObject = 1;
-  (function(module) {
-    const util = require$$0$2;
-    module.exports = {
-      serialize,
-      maxDepth({ data, transport, depth = transport?.depth ?? 6 }) {
-        if (!data) {
-          return data;
-        }
-        if (depth < 1) {
-          if (Array.isArray(data)) return "[array]";
-          if (typeof data === "object" && data) return "[object]";
-          return data;
-        }
-        if (Array.isArray(data)) {
-          return data.map((child) => module.exports.maxDepth({
-            data: child,
-            depth: depth - 1
+var ue = { exports: {} }, Je;
+function H() {
+  return Je || (Je = 1, (function(u) {
+    const c = Et;
+    u.exports = {
+      serialize: i,
+      maxDepth({ data: e, transport: r, depth: t = r?.depth ?? 6 }) {
+        if (!e)
+          return e;
+        if (t < 1)
+          return Array.isArray(e) ? "[array]" : typeof e == "object" && e ? "[object]" : e;
+        if (Array.isArray(e))
+          return e.map((o) => u.exports.maxDepth({
+            data: o,
+            depth: t - 1
           }));
-        }
-        if (typeof data !== "object") {
-          return data;
-        }
-        if (data && typeof data.toISOString === "function") {
-          return data;
-        }
-        if (data === null) {
+        if (typeof e != "object" || e && typeof e.toISOString == "function")
+          return e;
+        if (e === null)
           return null;
-        }
-        if (data instanceof Error) {
-          return data;
-        }
-        const newJson = {};
-        for (const i in data) {
-          if (!Object.prototype.hasOwnProperty.call(data, i)) continue;
-          newJson[i] = module.exports.maxDepth({
-            data: data[i],
-            depth: depth - 1
-          });
-        }
-        return newJson;
+        if (e instanceof Error)
+          return e;
+        const n = {};
+        for (const o in e)
+          Object.prototype.hasOwnProperty.call(e, o) && (n[o] = u.exports.maxDepth({
+            data: e[o],
+            depth: t - 1
+          }));
+        return n;
       },
-      toJSON({ data }) {
-        return JSON.parse(JSON.stringify(data, createSerializer()));
+      toJSON({ data: e }) {
+        return JSON.parse(JSON.stringify(e, s()));
       },
-      toString({ data, transport }) {
-        const inspectOptions = transport?.inspectOptions || {};
-        const simplifiedData = data.map((item) => {
-          if (item === void 0) {
-            return void 0;
-          }
-          try {
-            const str = JSON.stringify(item, createSerializer(), "  ");
-            return str === void 0 ? void 0 : JSON.parse(str);
-          } catch (e) {
-            return item;
-          }
+      toString({ data: e, transport: r }) {
+        const t = r?.inspectOptions || {}, n = e.map((o) => {
+          if (o !== void 0)
+            try {
+              const a = JSON.stringify(o, s(), "  ");
+              return a === void 0 ? void 0 : JSON.parse(a);
+            } catch {
+              return o;
+            }
         });
-        return util.formatWithOptions(inspectOptions, ...simplifiedData);
+        return c.formatWithOptions(t, ...n);
       }
     };
-    function createSerializer(options = {}) {
-      const seen = /* @__PURE__ */ new WeakSet();
-      return function(key, value) {
-        if (typeof value === "object" && value !== null) {
-          if (seen.has(value)) {
-            return void 0;
-          }
-          seen.add(value);
+    function s(e = {}) {
+      const r = /* @__PURE__ */ new WeakSet();
+      return function(t, n) {
+        if (typeof n == "object" && n !== null) {
+          if (r.has(n))
+            return;
+          r.add(n);
         }
-        return serialize(key, value, options);
+        return i(t, n, e);
       };
     }
-    function serialize(key, value, options = {}) {
-      const serializeMapAndSet = options?.serializeMapAndSet !== false;
-      if (value instanceof Error) {
-        return value.stack;
-      }
-      if (!value) {
-        return value;
-      }
-      if (typeof value === "function") {
-        return `[function] ${value.toString()}`;
-      }
-      if (value instanceof Date) {
-        return value.toISOString();
-      }
-      if (serializeMapAndSet && value instanceof Map && Object.fromEntries) {
-        return Object.fromEntries(value);
-      }
-      if (serializeMapAndSet && value instanceof Set && Array.from) {
-        return Array.from(value);
-      }
-      return value;
+    function i(e, r, t = {}) {
+      const n = t?.serializeMapAndSet !== !1;
+      return r instanceof Error ? r.stack : r && (typeof r == "function" ? `[function] ${r.toString()}` : r instanceof Date ? r.toISOString() : n && r instanceof Map && Object.fromEntries ? Object.fromEntries(r) : n && r instanceof Set && Array.from ? Array.from(r) : r);
     }
-  })(object);
-  return object.exports;
+  })(ue)), ue.exports;
 }
-var style;
-var hasRequiredStyle;
-function requireStyle() {
-  if (hasRequiredStyle) return style;
-  hasRequiredStyle = 1;
-  style = {
-    transformStyles,
-    applyAnsiStyles({ data }) {
-      return transformStyles(data, styleToAnsi, resetAnsiStyle);
+var pe, Ve;
+function _e() {
+  if (Ve) return pe;
+  Ve = 1, pe = {
+    transformStyles: i,
+    applyAnsiStyles({ data: e }) {
+      return i(e, c, s);
     },
-    removeStyles({ data }) {
-      return transformStyles(data, () => "");
+    removeStyles({ data: e }) {
+      return i(e, () => "");
     }
   };
-  const ANSI_COLORS = {
+  const u = {
     unset: "\x1B[0m",
     black: "\x1B[30m",
     red: "\x1B[31m",
@@ -2243,61 +1608,43 @@ function requireStyle() {
     white: "\x1B[37m",
     gray: "\x1B[90m"
   };
-  function styleToAnsi(style2) {
-    const color = style2.replace(/color:\s*(\w+).*/, "$1").toLowerCase();
-    return ANSI_COLORS[color] || "";
+  function c(e) {
+    const r = e.replace(/color:\s*(\w+).*/, "$1").toLowerCase();
+    return u[r] || "";
   }
-  function resetAnsiStyle(string) {
-    return string + ANSI_COLORS.unset;
+  function s(e) {
+    return e + u.unset;
   }
-  function transformStyles(data, onStyleFound, onStyleApplied) {
-    const foundStyles = {};
-    return data.reduce((result, item, index, array) => {
-      if (foundStyles[index]) {
-        return result;
+  function i(e, r, t) {
+    const n = {};
+    return e.reduce((o, a, l, p) => {
+      if (n[l])
+        return o;
+      if (typeof a == "string") {
+        let f = l, h = !1;
+        a = a.replace(/%[1cdfiOos]/g, (S) => {
+          if (f += 1, S !== "%c")
+            return S;
+          const b = p[f];
+          return typeof b == "string" ? (n[f] = !0, h = !0, r(b, a)) : S;
+        }), h && t && (a = t(a));
       }
-      if (typeof item === "string") {
-        let valueIndex = index;
-        let styleApplied = false;
-        item = item.replace(/%[1cdfiOos]/g, (match) => {
-          valueIndex += 1;
-          if (match !== "%c") {
-            return match;
-          }
-          const style2 = array[valueIndex];
-          if (typeof style2 === "string") {
-            foundStyles[valueIndex] = true;
-            styleApplied = true;
-            return onStyleFound(style2, item);
-          }
-          return match;
-        });
-        if (styleApplied && onStyleApplied) {
-          item = onStyleApplied(item);
-        }
-      }
-      result.push(item);
-      return result;
+      return o.push(a), o;
     }, []);
   }
-  return style;
+  return pe;
 }
-var console_1;
-var hasRequiredConsole;
-function requireConsole() {
-  if (hasRequiredConsole) return console_1;
-  hasRequiredConsole = 1;
+var fe, Ge;
+function Bt() {
+  if (Ge) return fe;
+  Ge = 1;
   const {
-    concatFirstStringElements,
-    format: format2
-  } = requireFormat();
-  const { maxDepth, toJSON } = requireObject();
-  const {
-    applyAnsiStyles,
-    removeStyles
-  } = requireStyle();
-  const { transform } = requireTransform();
-  const consoleMethods = {
+    concatFirstStringElements: u,
+    format: c
+  } = ut(), { maxDepth: s, toJSON: i } = H(), {
+    applyAnsiStyles: e,
+    removeStyles: r
+  } = _e(), { transform: t } = N(), n = {
     error: console.error,
     warn: console.warn,
     info: console.info,
@@ -2306,14 +1653,13 @@ function requireConsole() {
     silly: console.debug,
     log: console.log
   };
-  console_1 = consoleTransportFactory;
-  const separator = process.platform === "win32" ? ">" : "›";
-  const DEFAULT_FORMAT = `%c{h}:{i}:{s}.{ms}{scope}%c ${separator} {text}`;
-  Object.assign(consoleTransportFactory, {
-    DEFAULT_FORMAT
+  fe = l;
+  const a = `%c{h}:{i}:{s}.{ms}{scope}%c ${process.platform === "win32" ? ">" : "›"} {text}`;
+  Object.assign(l, {
+    DEFAULT_FORMAT: a
   });
-  function consoleTransportFactory(logger) {
-    return Object.assign(transport, {
+  function l(b) {
+    return Object.assign(g, {
       colorMap: {
         error: "red",
         warn: "yellow",
@@ -2323,201 +1669,159 @@ function requireConsole() {
         silly: "gray",
         default: "unset"
       },
-      format: DEFAULT_FORMAT,
+      format: a,
       level: "silly",
       transforms: [
-        addTemplateColors,
-        format2,
-        formatStyles,
-        concatFirstStringElements,
-        maxDepth,
-        toJSON
+        p,
+        c,
+        h,
+        u,
+        s,
+        i
       ],
       useStyles: process.env.FORCE_STYLES,
-      writeFn({ message }) {
-        const consoleLogFn = consoleMethods[message.level] || consoleMethods.info;
-        consoleLogFn(...message.data);
+      writeFn({ message: A }) {
+        (n[A.level] || n.info)(...A.data);
       }
     });
-    function transport(message) {
-      const data = transform({ logger, message, transport });
-      transport.writeFn({
-        message: { ...message, data }
+    function g(A) {
+      const $ = t({ logger: b, message: A, transport: g });
+      g.writeFn({
+        message: { ...A, data: $ }
       });
     }
   }
-  function addTemplateColors({ data, message, transport }) {
-    if (typeof transport.format !== "string" || !transport.format.includes("%c")) {
-      return data;
-    }
-    return [
-      `color:${levelToStyle(message.level, transport)}`,
+  function p({ data: b, message: g, transport: A }) {
+    return typeof A.format != "string" || !A.format.includes("%c") ? b : [
+      `color:${S(g.level, A)}`,
       "color:unset",
-      ...data
+      ...b
     ];
   }
-  function canUseStyles(useStyleValue, level) {
-    if (typeof useStyleValue === "boolean") {
-      return useStyleValue;
-    }
-    const useStderr = level === "error" || level === "warn";
-    const stream = useStderr ? process.stderr : process.stdout;
-    return stream && stream.isTTY;
+  function f(b, g) {
+    if (typeof b == "boolean")
+      return b;
+    const $ = g === "error" || g === "warn" ? process.stderr : process.stdout;
+    return $ && $.isTTY;
   }
-  function formatStyles(args) {
-    const { message, transport } = args;
-    const useStyles = canUseStyles(transport.useStyles, message.level);
-    const nextTransform = useStyles ? applyAnsiStyles : removeStyles;
-    return nextTransform(args);
+  function h(b) {
+    const { message: g, transport: A } = b;
+    return (f(A.useStyles, g.level) ? e : r)(b);
   }
-  function levelToStyle(level, transport) {
-    return transport.colorMap[level] || transport.colorMap.default;
+  function S(b, g) {
+    return g.colorMap[b] || g.colorMap.default;
   }
-  return console_1;
+  return fe;
 }
-var File_1;
-var hasRequiredFile$1;
-function requireFile$1() {
-  if (hasRequiredFile$1) return File_1;
-  hasRequiredFile$1 = 1;
-  const EventEmitter = require$$0$3;
-  const fs = require$$0;
-  const os = require$$1;
-  class File extends EventEmitter {
+var he, Ye;
+function pt() {
+  if (Ye) return he;
+  Ye = 1;
+  const u = it, c = I, s = W;
+  class i extends u {
     asyncWriteQueue = [];
     bytesWritten = 0;
-    hasActiveAsyncWriting = false;
+    hasActiveAsyncWriting = !1;
     path = null;
     initialSize = void 0;
     writeOptions = null;
-    writeAsync = false;
+    writeAsync = !1;
     constructor({
-      path,
-      writeOptions = { encoding: "utf8", flag: "a", mode: 438 },
-      writeAsync = false
+      path: t,
+      writeOptions: n = { encoding: "utf8", flag: "a", mode: 438 },
+      writeAsync: o = !1
     }) {
-      super();
-      this.path = path;
-      this.writeOptions = writeOptions;
-      this.writeAsync = writeAsync;
+      super(), this.path = t, this.writeOptions = n, this.writeAsync = o;
     }
     get size() {
       return this.getSize();
     }
     clear() {
       try {
-        fs.writeFileSync(this.path, "", {
+        return c.writeFileSync(this.path, "", {
           mode: this.writeOptions.mode,
           flag: "w"
-        });
-        this.reset();
-        return true;
-      } catch (e) {
-        if (e.code === "ENOENT") {
-          return true;
-        }
-        this.emit("error", e, this);
-        return false;
+        }), this.reset(), !0;
+      } catch (t) {
+        return t.code === "ENOENT" ? !0 : (this.emit("error", t, this), !1);
       }
     }
-    crop(bytesAfter) {
+    crop(t) {
       try {
-        const content = readFileSyncFromEnd(this.path, bytesAfter || 4096);
-        this.clear();
-        this.writeLine(`[log cropped]${os.EOL}${content}`);
-      } catch (e) {
+        const n = e(this.path, t || 4096);
+        this.clear(), this.writeLine(`[log cropped]${s.EOL}${n}`);
+      } catch (n) {
         this.emit(
           "error",
-          new Error(`Couldn't crop file ${this.path}. ${e.message}`),
+          new Error(`Couldn't crop file ${this.path}. ${n.message}`),
           this
         );
       }
     }
     getSize() {
-      if (this.initialSize === void 0) {
+      if (this.initialSize === void 0)
         try {
-          const stats = fs.statSync(this.path);
-          this.initialSize = stats.size;
-        } catch (e) {
+          const t = c.statSync(this.path);
+          this.initialSize = t.size;
+        } catch {
           this.initialSize = 0;
         }
-      }
       return this.initialSize + this.bytesWritten;
     }
-    increaseBytesWrittenCounter(text) {
-      this.bytesWritten += Buffer.byteLength(text, this.writeOptions.encoding);
+    increaseBytesWrittenCounter(t) {
+      this.bytesWritten += Buffer.byteLength(t, this.writeOptions.encoding);
     }
     isNull() {
-      return false;
+      return !1;
     }
     nextAsyncWrite() {
-      const file2 = this;
-      if (this.hasActiveAsyncWriting || this.asyncWriteQueue.length === 0) {
+      const t = this;
+      if (this.hasActiveAsyncWriting || this.asyncWriteQueue.length === 0)
         return;
-      }
-      const text = this.asyncWriteQueue.join("");
-      this.asyncWriteQueue = [];
-      this.hasActiveAsyncWriting = true;
-      fs.writeFile(this.path, text, this.writeOptions, (e) => {
-        file2.hasActiveAsyncWriting = false;
-        if (e) {
-          file2.emit(
-            "error",
-            new Error(`Couldn't write to ${file2.path}. ${e.message}`),
-            this
-          );
-        } else {
-          file2.increaseBytesWrittenCounter(text);
-        }
-        file2.nextAsyncWrite();
+      const n = this.asyncWriteQueue.join("");
+      this.asyncWriteQueue = [], this.hasActiveAsyncWriting = !0, c.writeFile(this.path, n, this.writeOptions, (o) => {
+        t.hasActiveAsyncWriting = !1, o ? t.emit(
+          "error",
+          new Error(`Couldn't write to ${t.path}. ${o.message}`),
+          this
+        ) : t.increaseBytesWrittenCounter(n), t.nextAsyncWrite();
       });
     }
     reset() {
-      this.initialSize = void 0;
-      this.bytesWritten = 0;
+      this.initialSize = void 0, this.bytesWritten = 0;
     }
     toString() {
       return this.path;
     }
-    writeLine(text) {
-      text += os.EOL;
-      if (this.writeAsync) {
-        this.asyncWriteQueue.push(text);
-        this.nextAsyncWrite();
+    writeLine(t) {
+      if (t += s.EOL, this.writeAsync) {
+        this.asyncWriteQueue.push(t), this.nextAsyncWrite();
         return;
       }
       try {
-        fs.writeFileSync(this.path, text, this.writeOptions);
-        this.increaseBytesWrittenCounter(text);
-      } catch (e) {
+        c.writeFileSync(this.path, t, this.writeOptions), this.increaseBytesWrittenCounter(t);
+      } catch (n) {
         this.emit(
           "error",
-          new Error(`Couldn't write to ${this.path}. ${e.message}`),
+          new Error(`Couldn't write to ${this.path}. ${n.message}`),
           this
         );
       }
     }
   }
-  File_1 = File;
-  function readFileSyncFromEnd(filePath, bytesCount) {
-    const buffer = Buffer.alloc(bytesCount);
-    const stats = fs.statSync(filePath);
-    const readLength = Math.min(stats.size, bytesCount);
-    const offset = Math.max(0, stats.size - bytesCount);
-    const fd = fs.openSync(filePath, "r");
-    const totalBytes = fs.readSync(fd, buffer, 0, readLength, offset);
-    fs.closeSync(fd);
-    return buffer.toString("utf8", 0, totalBytes);
+  he = i;
+  function e(r, t) {
+    const n = Buffer.alloc(t), o = c.statSync(r), a = Math.min(o.size, t), l = Math.max(0, o.size - t), p = c.openSync(r, "r"), f = c.readSync(p, n, 0, a, l);
+    return c.closeSync(p), n.toString("utf8", 0, f);
   }
-  return File_1;
+  return he;
 }
-var NullFile_1;
-var hasRequiredNullFile;
-function requireNullFile() {
-  if (hasRequiredNullFile) return NullFile_1;
-  hasRequiredNullFile = 1;
-  const File = requireFile$1();
-  class NullFile extends File {
+var de, Qe;
+function Jt() {
+  if (Qe) return de;
+  Qe = 1;
+  const u = pt();
+  class c extends u {
     clear() {
     }
     crop() {
@@ -2526,29 +1830,22 @@ function requireNullFile() {
       return 0;
     }
     isNull() {
-      return true;
+      return !0;
     }
     writeLine() {
     }
   }
-  NullFile_1 = NullFile;
-  return NullFile_1;
+  return de = c, de;
 }
-var FileRegistry_1;
-var hasRequiredFileRegistry;
-function requireFileRegistry() {
-  if (hasRequiredFileRegistry) return FileRegistry_1;
-  hasRequiredFileRegistry = 1;
-  const EventEmitter = require$$0$3;
-  const fs = require$$0;
-  const path = require$$2$1;
-  const File = requireFile$1();
-  const NullFile = requireNullFile();
-  class FileRegistry extends EventEmitter {
+var ge, Xe;
+function Vt() {
+  if (Xe) return ge;
+  Xe = 1;
+  const u = it, c = I, s = k, i = pt(), e = Jt();
+  class r extends u {
     store = {};
     constructor() {
-      super();
-      this.emitError = this.emitError.bind(this);
+      super(), this.emitError = this.emitError.bind(this);
     }
     /**
      * Provide a File object corresponding to the filePath
@@ -2557,21 +1854,16 @@ function requireFileRegistry() {
      * @param {boolean} [writeAsync]
      * @return {File}
      */
-    provide({ filePath, writeOptions = {}, writeAsync = false }) {
-      let file2;
+    provide({ filePath: n, writeOptions: o = {}, writeAsync: a = !1 }) {
+      let l;
       try {
-        filePath = path.resolve(filePath);
-        if (this.store[filePath]) {
-          return this.store[filePath];
-        }
-        file2 = this.createFile({ filePath, writeOptions, writeAsync });
-      } catch (e) {
-        file2 = new NullFile({ path: filePath });
-        this.emitError(e, file2);
+        if (n = s.resolve(n), this.store[n])
+          return this.store[n];
+        l = this.createFile({ filePath: n, writeOptions: o, writeAsync: a });
+      } catch (p) {
+        l = new e({ path: n }), this.emitError(p, l);
       }
-      file2.on("error", this.emitError);
-      this.store[filePath] = file2;
-      return file2;
+      return l.on("error", this.emitError), this.store[n] = l, l;
     }
     /**
      * @param {string} filePath
@@ -2580,158 +1872,122 @@ function requireFileRegistry() {
      * @return {File}
      * @private
      */
-    createFile({ filePath, writeOptions, writeAsync }) {
-      this.testFileWriting({ filePath, writeOptions });
-      return new File({ path: filePath, writeOptions, writeAsync });
+    createFile({ filePath: n, writeOptions: o, writeAsync: a }) {
+      return this.testFileWriting({ filePath: n, writeOptions: o }), new i({ path: n, writeOptions: o, writeAsync: a });
     }
     /**
      * @param {Error} error
      * @param {File} file
      * @private
      */
-    emitError(error, file2) {
-      this.emit("error", error, file2);
+    emitError(n, o) {
+      this.emit("error", n, o);
     }
     /**
      * @param {string} filePath
      * @param {WriteOptions} writeOptions
      * @private
      */
-    testFileWriting({ filePath, writeOptions }) {
-      fs.mkdirSync(path.dirname(filePath), { recursive: true });
-      fs.writeFileSync(filePath, "", { flag: "a", mode: writeOptions.mode });
+    testFileWriting({ filePath: n, writeOptions: o }) {
+      c.mkdirSync(s.dirname(n), { recursive: !0 }), c.writeFileSync(n, "", { flag: "a", mode: o.mode });
     }
   }
-  FileRegistry_1 = FileRegistry;
-  return FileRegistry_1;
+  return ge = r, ge;
 }
-var file;
-var hasRequiredFile;
-function requireFile() {
-  if (hasRequiredFile) return file;
-  hasRequiredFile = 1;
-  const fs = require$$0;
-  const os = require$$1;
-  const path = require$$2$1;
-  const FileRegistry = requireFileRegistry();
-  const { transform } = requireTransform();
-  const { removeStyles } = requireStyle();
-  const {
-    format: format2,
-    concatFirstStringElements
-  } = requireFormat();
-  const { toString } = requireObject();
-  file = fileTransportFactory;
-  const globalRegistry = new FileRegistry();
-  function fileTransportFactory(logger, { registry = globalRegistry, externalApi } = {}) {
-    let pathVariables;
-    if (registry.listenerCount("error") < 1) {
-      registry.on("error", (e, file2) => {
-        logConsole(`Can't write to ${file2}`, e);
-      });
-    }
-    return Object.assign(transport, {
-      fileName: getDefaultFileName(logger.variables.processType),
+var me, Ze;
+function Gt() {
+  if (Ze) return me;
+  Ze = 1;
+  const u = I, c = W, s = k, i = Vt(), { transform: e } = N(), { removeStyles: r } = _e(), {
+    format: t,
+    concatFirstStringElements: n
+  } = ut(), { toString: o } = H();
+  me = l;
+  const a = new i();
+  function l(f, { registry: h = a, externalApi: S } = {}) {
+    let b;
+    return h.listenerCount("error") < 1 && h.on("error", (m, y) => {
+      $(`Can't write to ${y}`, m);
+    }), Object.assign(g, {
+      fileName: p(f.variables.processType),
       format: "[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text}",
-      getFile,
+      getFile: d,
       inspectOptions: { depth: 5 },
       level: "silly",
       maxSize: 1024 ** 2,
-      readAllLogs,
-      sync: true,
-      transforms: [removeStyles, format2, concatFirstStringElements, toString],
+      readAllLogs: E,
+      sync: !0,
+      transforms: [r, t, n, o],
       writeOptions: { flag: "a", mode: 438, encoding: "utf8" },
-      archiveLogFn(file2) {
-        const oldPath = file2.toString();
-        const inf = path.parse(oldPath);
+      archiveLogFn(m) {
+        const y = m.toString(), v = s.parse(y);
         try {
-          fs.renameSync(oldPath, path.join(inf.dir, `${inf.name}.old${inf.ext}`));
-        } catch (e) {
-          logConsole("Could not rotate log", e);
-          const quarterOfMaxSize = Math.round(transport.maxSize / 4);
-          file2.crop(Math.min(quarterOfMaxSize, 256 * 1024));
+          u.renameSync(y, s.join(v.dir, `${v.name}.old${v.ext}`));
+        } catch (O) {
+          $("Could not rotate log", O);
+          const R = Math.round(g.maxSize / 4);
+          m.crop(Math.min(R, 256 * 1024));
         }
       },
-      resolvePathFn(vars) {
-        return path.join(vars.libraryDefaultDir, vars.fileName);
+      resolvePathFn(m) {
+        return s.join(m.libraryDefaultDir, m.fileName);
       },
-      setAppName(name2) {
-        logger.dependencies.externalApi.setAppName(name2);
+      setAppName(m) {
+        f.dependencies.externalApi.setAppName(m);
       }
     });
-    function transport(message) {
-      const file2 = getFile(message);
-      const needLogRotation = transport.maxSize > 0 && file2.size > transport.maxSize;
-      if (needLogRotation) {
-        transport.archiveLogFn(file2);
-        file2.reset();
-      }
-      const content = transform({ logger, message, transport });
-      file2.writeLine(content);
+    function g(m) {
+      const y = d(m);
+      g.maxSize > 0 && y.size > g.maxSize && (g.archiveLogFn(y), y.reset());
+      const O = e({ logger: f, message: m, transport: g });
+      y.writeLine(O);
     }
-    function initializeOnFirstAccess() {
-      if (pathVariables) {
-        return;
-      }
-      pathVariables = Object.create(
+    function A() {
+      b || (b = Object.create(
         Object.prototype,
         {
           ...Object.getOwnPropertyDescriptors(
-            externalApi.getPathVariables()
+            S.getPathVariables()
           ),
           fileName: {
             get() {
-              return transport.fileName;
+              return g.fileName;
             },
-            enumerable: true
+            enumerable: !0
           }
         }
-      );
-      if (typeof transport.archiveLog === "function") {
-        transport.archiveLogFn = transport.archiveLog;
-        logConsole("archiveLog is deprecated. Use archiveLogFn instead");
-      }
-      if (typeof transport.resolvePath === "function") {
-        transport.resolvePathFn = transport.resolvePath;
-        logConsole("resolvePath is deprecated. Use resolvePathFn instead");
-      }
+      ), typeof g.archiveLog == "function" && (g.archiveLogFn = g.archiveLog, $("archiveLog is deprecated. Use archiveLogFn instead")), typeof g.resolvePath == "function" && (g.resolvePathFn = g.resolvePath, $("resolvePath is deprecated. Use resolvePathFn instead")));
     }
-    function logConsole(message, error = null, level = "error") {
-      const data = [`electron-log.transports.file: ${message}`];
-      if (error) {
-        data.push(error);
-      }
-      logger.transports.console({ data, date: /* @__PURE__ */ new Date(), level });
+    function $(m, y = null, v = "error") {
+      const O = [`electron-log.transports.file: ${m}`];
+      y && O.push(y), f.transports.console({ data: O, date: /* @__PURE__ */ new Date(), level: v });
     }
-    function getFile(msg) {
-      initializeOnFirstAccess();
-      const filePath = transport.resolvePathFn(pathVariables, msg);
-      return registry.provide({
-        filePath,
-        writeAsync: !transport.sync,
-        writeOptions: transport.writeOptions
+    function d(m) {
+      A();
+      const y = g.resolvePathFn(b, m);
+      return h.provide({
+        filePath: y,
+        writeAsync: !g.sync,
+        writeOptions: g.writeOptions
       });
     }
-    function readAllLogs({ fileFilter = (f) => f.endsWith(".log") } = {}) {
-      initializeOnFirstAccess();
-      const logsPath = path.dirname(transport.resolvePathFn(pathVariables));
-      if (!fs.existsSync(logsPath)) {
-        return [];
-      }
-      return fs.readdirSync(logsPath).map((fileName) => path.join(logsPath, fileName)).filter(fileFilter).map((logPath) => {
+    function E({ fileFilter: m = (y) => y.endsWith(".log") } = {}) {
+      A();
+      const y = s.dirname(g.resolvePathFn(b));
+      return u.existsSync(y) ? u.readdirSync(y).map((v) => s.join(y, v)).filter(m).map((v) => {
         try {
           return {
-            path: logPath,
-            lines: fs.readFileSync(logPath, "utf8").split(os.EOL)
+            path: v,
+            lines: u.readFileSync(v, "utf8").split(c.EOL)
           };
         } catch {
           return null;
         }
-      }).filter(Boolean);
+      }).filter(Boolean) : [];
     }
   }
-  function getDefaultFileName(processType = process.type) {
-    switch (processType) {
+  function p(f = process.type) {
+    switch (f) {
       case "renderer":
         return "renderer.log";
       case "worker":
@@ -2740,557 +1996,452 @@ function requireFile() {
         return "main.log";
     }
   }
-  return file;
+  return me;
 }
-var ipc;
-var hasRequiredIpc;
-function requireIpc() {
-  if (hasRequiredIpc) return ipc;
-  hasRequiredIpc = 1;
-  const { maxDepth, toJSON } = requireObject();
-  const { transform } = requireTransform();
-  ipc = ipcTransportFactory;
-  function ipcTransportFactory(logger, { externalApi }) {
-    Object.assign(transport, {
+var ye, Ke;
+function Yt() {
+  if (Ke) return ye;
+  Ke = 1;
+  const { maxDepth: u, toJSON: c } = H(), { transform: s } = N();
+  ye = i;
+  function i(e, { externalApi: r }) {
+    return Object.assign(t, {
       depth: 3,
       eventId: "__ELECTRON_LOG_IPC__",
-      level: logger.isDev ? "silly" : false,
-      transforms: [toJSON, maxDepth]
-    });
-    return externalApi?.isElectron() ? transport : void 0;
-    function transport(message) {
-      if (message?.variables?.processType === "renderer") {
-        return;
-      }
-      externalApi?.sendIpc(transport.eventId, {
-        ...message,
-        data: transform({ logger, message, transport })
+      level: e.isDev ? "silly" : !1,
+      transforms: [c, u]
+    }), r?.isElectron() ? t : void 0;
+    function t(n) {
+      n?.variables?.processType !== "renderer" && r?.sendIpc(t.eventId, {
+        ...n,
+        data: s({ logger: e, message: n, transport: t })
       });
     }
   }
-  return ipc;
+  return ye;
 }
-var remote;
-var hasRequiredRemote;
-function requireRemote() {
-  if (hasRequiredRemote) return remote;
-  hasRequiredRemote = 1;
-  const http = require$$0$4;
-  const https = require$$1$1;
-  const { transform } = requireTransform();
-  const { removeStyles } = requireStyle();
-  const { toJSON, maxDepth } = requireObject();
-  remote = remoteTransportFactory;
-  function remoteTransportFactory(logger) {
-    return Object.assign(transport, {
+var ve, et;
+function Qt() {
+  if (et) return ve;
+  et = 1;
+  const u = At, c = _t, { transform: s } = N(), { removeStyles: i } = _e(), { toJSON: e, maxDepth: r } = H();
+  ve = t;
+  function t(n) {
+    return Object.assign(o, {
       client: { name: "electron-application" },
       depth: 6,
-      level: false,
+      level: !1,
       requestOptions: {},
-      transforms: [removeStyles, toJSON, maxDepth],
-      makeBodyFn({ message }) {
+      transforms: [i, e, r],
+      makeBodyFn({ message: a }) {
         return JSON.stringify({
-          client: transport.client,
-          data: message.data,
-          date: message.date.getTime(),
-          level: message.level,
-          scope: message.scope,
-          variables: message.variables
+          client: o.client,
+          data: a.data,
+          date: a.date.getTime(),
+          level: a.level,
+          scope: a.scope,
+          variables: a.variables
         });
       },
-      processErrorFn({ error }) {
-        logger.processMessage(
+      processErrorFn({ error: a }) {
+        n.processMessage(
           {
-            data: [`electron-log: can't POST ${transport.url}`, error],
+            data: [`electron-log: can't POST ${o.url}`, a],
             level: "warn"
           },
           { transports: ["console", "file"] }
         );
       },
-      sendRequestFn({ serverUrl, requestOptions, body }) {
-        const httpTransport = serverUrl.startsWith("https:") ? https : http;
-        const request = httpTransport.request(serverUrl, {
+      sendRequestFn({ serverUrl: a, requestOptions: l, body: p }) {
+        const h = (a.startsWith("https:") ? c : u).request(a, {
           method: "POST",
-          ...requestOptions,
+          ...l,
           headers: {
             "Content-Type": "application/json",
-            "Content-Length": body.length,
-            ...requestOptions.headers
+            "Content-Length": p.length,
+            ...l.headers
           }
         });
-        request.write(body);
-        request.end();
-        return request;
+        return h.write(p), h.end(), h;
       }
     });
-    function transport(message) {
-      if (!transport.url) {
+    function o(a) {
+      if (!o.url)
         return;
-      }
-      const body = transport.makeBodyFn({
-        logger,
-        message: { ...message, data: transform({ logger, message, transport }) },
-        transport
+      const l = o.makeBodyFn({
+        logger: n,
+        message: { ...a, data: s({ logger: n, message: a, transport: o }) },
+        transport: o
+      }), p = o.sendRequestFn({
+        serverUrl: o.url,
+        requestOptions: o.requestOptions,
+        body: Buffer.from(l, "utf8")
       });
-      const request = transport.sendRequestFn({
-        serverUrl: transport.url,
-        requestOptions: transport.requestOptions,
-        body: Buffer.from(body, "utf8")
-      });
-      request.on("error", (error) => transport.processErrorFn({
-        error,
-        logger,
-        message,
-        request,
-        transport
+      p.on("error", (f) => o.processErrorFn({
+        error: f,
+        logger: n,
+        message: a,
+        request: p,
+        transport: o
       }));
     }
   }
-  return remote;
+  return ve;
 }
-var createDefaultLogger_1;
-var hasRequiredCreateDefaultLogger;
-function requireCreateDefaultLogger() {
-  if (hasRequiredCreateDefaultLogger) return createDefaultLogger_1;
-  hasRequiredCreateDefaultLogger = 1;
-  const Logger = requireLogger();
-  const ErrorHandler = requireErrorHandler();
-  const EventLogger = requireEventLogger();
-  const transportConsole = requireConsole();
-  const transportFile = requireFile();
-  const transportIpc = requireIpc();
-  const transportRemote = requireRemote();
-  createDefaultLogger_1 = createDefaultLogger;
-  function createDefaultLogger({ dependencies, initializeFn }) {
-    const defaultLogger = new Logger({
-      dependencies,
-      errorHandler: new ErrorHandler(),
-      eventLogger: new EventLogger(),
-      initializeFn,
-      isDev: dependencies.externalApi?.isDev(),
+var be, tt;
+function ft() {
+  if (tt) return be;
+  tt = 1;
+  const u = ct(), c = Wt(), s = Ht(), i = Bt(), e = Gt(), r = Yt(), t = Qt();
+  be = n;
+  function n({ dependencies: o, initializeFn: a }) {
+    const l = new u({
+      dependencies: o,
+      errorHandler: new c(),
+      eventLogger: new s(),
+      initializeFn: a,
+      isDev: o.externalApi?.isDev(),
       logId: "default",
       transportFactories: {
-        console: transportConsole,
-        file: transportFile,
-        ipc: transportIpc,
-        remote: transportRemote
+        console: i,
+        file: e,
+        ipc: r,
+        remote: t
       },
       variables: {
         processType: "main"
       }
     });
-    defaultLogger.default = defaultLogger;
-    defaultLogger.Logger = Logger;
-    defaultLogger.processInternalErrorFn = (e) => {
-      defaultLogger.transports.console.writeFn({
+    return l.default = l, l.Logger = u, l.processInternalErrorFn = (p) => {
+      l.transports.console.writeFn({
         message: {
-          data: ["Unhandled electron-log error", e],
+          data: ["Unhandled electron-log error", p],
           level: "error"
         }
       });
-    };
-    return defaultLogger;
+    }, l;
   }
-  return createDefaultLogger_1;
+  return be;
 }
-var main;
-var hasRequiredMain;
-function requireMain() {
-  if (hasRequiredMain) return main;
-  hasRequiredMain = 1;
-  const electron = require$$7;
-  const ElectronExternalApi = requireElectronExternalApi();
-  const { initialize: initialize2 } = requireInitialize();
-  const createDefaultLogger = requireCreateDefaultLogger();
-  const externalApi = new ElectronExternalApi({ electron });
-  const defaultLogger = createDefaultLogger({
-    dependencies: { externalApi },
-    initializeFn: initialize2
+var we, rt;
+function Xt() {
+  if (rt) return we;
+  rt = 1;
+  const u = st, c = Ut(), { initialize: s } = zt(), i = ft(), e = new c({ electron: u }), r = i({
+    dependencies: { externalApi: e },
+    initializeFn: s
   });
-  main = defaultLogger;
-  externalApi.onIpc("__ELECTRON_LOG__", (_, message) => {
-    if (message.scope) {
-      defaultLogger.Logger.getInstance(message).scope(message.scope);
-    }
-    const date = new Date(message.date);
-    processMessage({
-      ...message,
-      date: date.getTime() ? date : /* @__PURE__ */ new Date()
+  we = r, e.onIpc("__ELECTRON_LOG__", (n, o) => {
+    o.scope && r.Logger.getInstance(o).scope(o.scope);
+    const a = new Date(o.date);
+    t({
+      ...o,
+      date: a.getTime() ? a : /* @__PURE__ */ new Date()
     });
-  });
-  externalApi.onIpcInvoke("__ELECTRON_LOG__", (_, { cmd = "", logId }) => {
-    switch (cmd) {
-      case "getOptions": {
-        const logger = defaultLogger.Logger.getInstance({ logId });
+  }), e.onIpcInvoke("__ELECTRON_LOG__", (n, { cmd: o = "", logId: a }) => {
+    switch (o) {
+      case "getOptions":
         return {
-          levels: logger.levels,
-          logId
+          levels: r.Logger.getInstance({ logId: a }).levels,
+          logId: a
         };
-      }
-      default: {
-        processMessage({ data: [`Unknown cmd '${cmd}'`], level: "error" });
-        return {};
-      }
+      default:
+        return t({ data: [`Unknown cmd '${o}'`], level: "error" }), {};
     }
   });
-  function processMessage(message) {
-    defaultLogger.Logger.getInstance(message)?.processMessage(message);
+  function t(n) {
+    r.Logger.getInstance(n)?.processMessage(n);
   }
-  return main;
+  return we;
 }
-var node;
-var hasRequiredNode;
-function requireNode() {
-  if (hasRequiredNode) return node;
-  hasRequiredNode = 1;
-  const NodeExternalApi = requireNodeExternalApi();
-  const createDefaultLogger = requireCreateDefaultLogger();
-  const externalApi = new NodeExternalApi();
-  const defaultLogger = createDefaultLogger({
-    dependencies: { externalApi }
-  });
-  node = defaultLogger;
-  return node;
+var Se, nt;
+function Zt() {
+  if (nt) return Se;
+  nt = 1;
+  const u = lt(), c = ft(), s = new u();
+  return Se = c({
+    dependencies: { externalApi: s }
+  }), Se;
 }
-var hasRequiredSrc;
-function requireSrc() {
-  if (hasRequiredSrc) return src.exports;
-  hasRequiredSrc = 1;
-  const isRenderer = typeof process === "undefined" || (process.type === "renderer" || process.type === "worker");
-  const isMain = typeof process === "object" && process.type === "browser";
-  if (isRenderer) {
-    requireElectronLogPreload();
-    src.exports = requireRenderer();
-  } else if (isMain) {
-    src.exports = requireMain();
-  } else {
-    src.exports = requireNode();
-  }
-  return src.exports;
+var ot;
+function Kt() {
+  if (ot) return C.exports;
+  ot = 1;
+  const u = typeof process > "u" || process.type === "renderer" || process.type === "worker", c = typeof process == "object" && process.type === "browser";
+  return u ? (at(), C.exports = It()) : c ? C.exports = Xt() : C.exports = Zt(), C.exports;
 }
-var srcExports = requireSrc();
-const log = /* @__PURE__ */ getDefaultExportFromCjs(srcExports);
-function getRootBackendFolderPath(env, resourcesPath) {
-  switch (env) {
+var er = Kt();
+const tr = /* @__PURE__ */ Ot(er);
+function D(u, c) {
+  switch (u) {
     case "dev":
     case "staging":
-      return join(cwd(), "dist", "nest-backend");
+      return P(Ee(), "dist", "nest-backend");
     case "prod":
-      return resourcesPath;
+      return c;
     default:
-      return join(cwd(), "dist", "nest-backend");
+      return P(Ee(), "dist", "nest-backend");
   }
 }
-function getProductionFrontendPath(resourcesPath) {
-  return join(resourcesPath, "ng-tracker", "browser", "index.html");
+function rr(u) {
+  return P(u, "ng-tracker", "browser", "index.html");
 }
-function getDevFrontendPath() {
-  return join(cwd(), "dist", "ng-tracker", "browser", "index.html");
+function nr() {
+  return P(Ee(), "dist", "ng-tracker", "browser", "index.html");
 }
-function getEnvironment() {
+function F() {
   return process.env.NODE_ENV || "prod";
 }
-const URLs = ["http://localhost:5000/health", "http://localhost:3000/health"];
-const ROOT_DATABASE_NAME = "database.sqlite3";
-function logToFile(path, message, type = "info") {
-  const logPath = join(path, `${type}.log`);
-  const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-  const logMessage = `${timestamp} - ${type.toUpperCase()}: ${message}
+const or = ["http://localhost:5000/health", "http://localhost:3000/health"], sr = "database.sqlite3";
+function _(u, c, s = "info") {
+  const i = P(u, `${s}.log`), r = `${(/* @__PURE__ */ new Date()).toISOString()} - ${s.toUpperCase()}: ${c}
 `;
   try {
-    appendFileSync(logPath, logMessage);
-  } catch (error) {
-    console.error("Failed to write to log file:", error);
+    wt(i, r);
+  } catch (t) {
+    console.error("Failed to write to log file:", t);
   }
 }
-function startBackend(resourcesPath) {
-  let env;
-  const rootBackendFolderPath = getRootBackendFolderPath(
-    getEnvironment(),
-    resourcesPath
+function ir(u) {
+  let c;
+  const s = D(
+    F(),
+    u
   );
-  logToFile(
-    rootBackendFolderPath,
+  _(
+    s,
     "Starting backend service...",
     "info"
   );
-  const serverPath = join(rootBackendFolderPath, "main.js");
-  const databasePath = join(
-    rootBackendFolderPath,
-    ROOT_DATABASE_NAME
+  const i = P(s, "main.js"), e = P(
+    s,
+    sr
   );
-  switch (getEnvironment()) {
+  switch (F()) {
     case "dev":
-      env = {
-        DATABASE_PATH: databasePath,
+      c = {
+        DATABASE_PATH: e,
         PORT: 3e3,
         NODE_ENV: "dev"
       };
       break;
     case "staging":
-      env = {
-        DATABASE_PATH: databasePath,
+      c = {
+        DATABASE_PATH: e,
         PORT: 3e3,
         NODE_ENV: "staging"
       };
       break;
     case "prod":
-      env = {
-        DATABASE_PATH: databasePath,
+      c = {
+        DATABASE_PATH: e,
         PORT: 5e3,
         NODE_ENV: "prod"
       };
       break;
     default:
-      env = {
-        DATABASE_PATH: databasePath,
+      c = {
+        DATABASE_PATH: e,
         PORT: 5e3,
         NODE_ENV: "prod"
       };
       break;
   }
-  logToFile(
-    rootBackendFolderPath,
-    `Starting server with environment: ${JSON.stringify(env, null, 2)}`
-  );
-  logToFile(
-    rootBackendFolderPath,
-    `Server path: ${serverPath}`,
+  return _(
+    s,
+    `Starting server with environment: ${JSON.stringify(c, null, 2)}`
+  ), _(
+    s,
+    `Server path: ${i}`,
     "info"
-  );
-  return fork(serverPath, { env });
+  ), bt(i, { env: c });
 }
-async function checkIfPortIsOpen(urls, maxAttempts = 20, timeout = 1e3, resourcesPath, loadingWindow2) {
-  const logFilePath = join(
-    getRootBackendFolderPath(
-      getEnvironment(),
-      resourcesPath
+async function ar(u, c = 20, s = 1e3, i, e) {
+  const r = P(
+    D(
+      F(),
+      i
     )
   );
-  await new Promise((resolve) => setTimeout(resolve, 5e3));
-  logToFile(
-    logFilePath,
-    `Checking if ports are open: ${urls}`,
+  await new Promise((t) => setTimeout(t, 5e3)), _(
+    r,
+    `Checking if ports are open: ${u}`,
     "info"
   );
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    for (const url of urls) {
+  for (let t = 1; t <= c; t++) {
+    for (const n of u)
       try {
-        logToFile(
-          logFilePath,
-          `Attempt ${attempt}: Checking port: ${url}`,
+        _(
+          r,
+          `Attempt ${t}: Checking port: ${n}`,
           "info"
         );
-        const response = await fetch(url);
-        console.log("Response status:", response.status);
-        const responseData = await response.text();
-        console.log("Response body:", responseData);
-        logToFile(logFilePath, responseData, "info");
-        if (response.ok) {
-          console.log("Server is ready");
-          logToFile(
-            logFilePath,
-            `Server is ready: ${responseData}`,
+        const o = await fetch(n);
+        console.log("Response status:", o.status);
+        const a = await o.text();
+        if (console.log("Response body:", a), _(r, a, "info"), o.ok)
+          return console.log("Server is ready"), _(
+            r,
+            `Server is ready: ${a}`,
             "info"
-          );
-          return true;
-        } else {
-          console.log(`Server responded with status: ${response.status}`);
-          logToFile(
-            logFilePath,
-            `Server responded with status: ${response.status}`,
-            "warning"
-          );
-        }
-      } catch (error) {
-        console.error(`Attempt ${attempt}: Error connecting to ${url}:`, error);
-        logToFile(
-          logFilePath,
-          `Attempt ${attempt}: ${error.toString()}`,
+          ), !0;
+        console.log(`Server responded with status: ${o.status}`), _(
+          r,
+          `Server responded with status: ${o.status}`,
+          "warning"
+        );
+      } catch (o) {
+        console.error(`Attempt ${t}: Error connecting to ${n}:`, o), _(
+          r,
+          `Attempt ${t}: ${o.toString()}`,
           "error"
         );
       }
-    }
-    if (attempt < maxAttempts) {
-      console.log(`Waiting ${timeout}ms before next attempt...`);
-      await new Promise((resolve) => setTimeout(resolve, timeout));
-    }
+    t < c && (console.log(`Waiting ${s}ms before next attempt...`), await new Promise((n) => setTimeout(n, s)));
   }
-  loadingWindow2?.close();
-  throw new Error(
-    `Failed to connect to the server after ${maxAttempts} attempts`
+  throw e?.close(), new Error(
+    `Failed to connect to the server after ${c} attempts`
   );
 }
-let loadingWindow = null;
-function createLoadingWindow() {
-  console.log("Creating loading window");
-  if (loadingWindow) {
-    console.log("Loading window already exists");
-    return loadingWindow;
-  }
+let j = null;
+function cr() {
+  if (console.log("Creating loading window"), j)
+    return console.log("Loading window already exists"), j;
   try {
-    loadingWindow = new BrowserWindow({
+    return j = new Ae({
       width: 400,
       height: 200,
-      frame: false,
-      transparent: true,
-      alwaysOnTop: true,
+      frame: !1,
+      transparent: !0,
+      alwaysOnTop: !0,
       webPreferences: {
-        nodeIntegration: true,
-        preload: join(__dirname, "preload.js")
+        nodeIntegration: !0,
+        preload: P(__dirname, "preload.js")
       }
-    });
-    if ("http://localhost:5173") {
-      loadingWindow.loadURL("http://localhost:5173");
-    }
-    loadingWindow.center();
-    loadingWindow.on("closed", () => {
-      loadingWindow = null;
-    });
-    return loadingWindow;
-  } catch (error) {
-    console.error("Error creating loading window:", error);
-    logToFile(
-      getRootBackendFolderPath(
-        getEnvironment(),
+    }), j.loadFile(P(__dirname, "../renderer/main_window/index.html")), j.center(), j.on("closed", () => {
+      j = null;
+    }), j;
+  } catch (u) {
+    return console.error("Error creating loading window:", u), _(
+      D(
+        F(),
         process.resourcesPath
       ),
-      error,
+      u,
       "error"
-    );
-    return null;
+    ), null;
   }
 }
-function createWindow(resourcesPath) {
-  const mainWindow = new BrowserWindow({
+function lr(u) {
+  const c = new Ae({
     width: 1400,
     height: 900,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: !0
     }
   });
   try {
-    const entryPath = getProductionFrontendPath(resourcesPath);
-    logToFile(
-      getRootBackendFolderPath(
-        getEnvironment(),
-        resourcesPath
+    const s = rr(u);
+    if (_(
+      D(
+        F(),
+        u
       ),
-      `Loading file: ${entryPath}`,
+      `Loading file: ${s}`,
       "info"
-    );
-    if (!existsSync(entryPath)) {
-      const devFrontendPath = getDevFrontendPath();
-      mainWindow.loadFile(devFrontendPath);
-      mainWindow.webContents.openDevTools();
-    } else {
-      mainWindow.loadFile(entryPath);
+    ), St(s))
+      c.loadFile(s);
+    else {
+      const i = nr();
+      c.loadFile(i), c.webContents.openDevTools();
     }
-  } catch (e) {
-    console.error(e);
+  } catch (s) {
+    console.error(s);
   }
 }
-distExports.updateElectronApp({
+jt.updateElectronApp({
   updateInterval: "1 hour",
-  logger: log
+  logger: tr
 });
-let server;
-app.whenReady().then(async () => {
-  server = startBackend(process.resourcesPath);
-  const loadingWindow2 = createLoadingWindow();
-  server.once("spawn", async () => {
+let q;
+T.whenReady().then(async () => {
+  q = ir(process.resourcesPath);
+  const u = cr();
+  q.once("spawn", async () => {
     try {
-      if (await checkIfPortIsOpen(
-        URLs,
+      await ar(
+        or,
         20,
         2e3,
         process.resourcesPath,
-        loadingWindow2
-      )) {
-        loadingWindow2?.close();
-        createWindow(
-          process.resourcesPath
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      logToFile(
-        join(
-          getRootBackendFolderPath(
-            getEnvironment(),
+        u
+      ) && (u?.close(), lr(
+        process.resourcesPath
+      ));
+    } catch (c) {
+      console.error(c), _(
+        P(
+          D(
+            F(),
             process.resourcesPath
           )
         ),
-        error,
+        c,
         "error"
       );
     }
-  });
-  server.on("message", (message) => {
-    console.log(`Message from child: ${message}`);
-    logToFile(
-      join(
-        getRootBackendFolderPath(
-          getEnvironment(),
+  }), q.on("message", (c) => {
+    console.log(`Message from child: ${c}`), _(
+      P(
+        D(
+          F(),
           process.resourcesPath
         )
       ),
-      message,
+      c,
       "info"
     );
-  });
-  server.on("error", (error) => {
-    console.error(`Error from child: ${error}`);
-    logToFile(
-      join(
-        getRootBackendFolderPath(
-          getEnvironment(),
+  }), q.on("error", (c) => {
+    console.error(`Error from child: ${c}`), _(
+      P(
+        D(
+          F(),
           process.resourcesPath
         )
       ),
-      error,
+      c,
       "error"
     );
-  });
-  server.on("exit", (code, signal) => {
-    console.log(`Child exited with code ${code} and signal ${signal}`);
-    logToFile(
-      join(
-        getRootBackendFolderPath(
-          getEnvironment(),
+  }), q.on("exit", (c, s) => {
+    console.log(`Child exited with code ${c} and signal ${s}`), _(
+      P(
+        D(
+          F(),
           process.resourcesPath
         )
       ),
-      `Child exited with code ${code} and signal ${signal}`,
+      `Child exited with code ${c} and signal ${s}`,
       "error"
     );
   });
 });
-app.on("before-quit", async () => {
-  console.log("App is about to quit. Performing cleanup...");
-  logToFile(
-    join(
-      getRootBackendFolderPath(
-        getEnvironment(),
+T.on("before-quit", async () => {
+  console.log("App is about to quit. Performing cleanup..."), _(
+    P(
+      D(
+        F(),
         process.resourcesPath
       )
     ),
     "App is about to quit. Performing cleanup...",
     "info"
-  );
-  if (server) {
-    server.kill();
-  }
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1e3);
-  });
-  app.quit();
+  ), q && q.kill(), await new Promise((u) => {
+    setTimeout(u, 1e3);
+  }), T.quit();
 });
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+T.on("window-all-closed", () => {
+  process.platform !== "darwin" && T.quit();
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) ;
+T.on("activate", () => {
+  Ae.getAllWindows().length;
 });
