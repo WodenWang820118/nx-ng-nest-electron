@@ -14,7 +14,7 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {}
 
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(environment.taskApiUrl).pipe(

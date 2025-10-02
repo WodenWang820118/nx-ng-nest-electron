@@ -6,21 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
-        "compiler": "tsc",
+        "compiler": "swc",
         "outputPath": "dist/nest-backend",
         "main": "nest-backend/src/main.ts",
         "tsConfig": "nest-backend/tsconfig.app.json",
         "generatePackageJson": true,
-        "webpackConfig": "nest-backend/webpack.config.cjs"
+        "rspackConfig": "nest-backend/rspack.config.cjs",
+        "outputHashing": "none",
+        "outputFileName": "main.js",
+        "externalDependencies": "all",
+        "skipTypeChecking": true,
+        "assets": ["nest-backend/src/assets"]
       },
       "configurations": {
-        "development": {},
-        "production": {}
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "sourceMap": false
+        }
       }
     },
     "serve": {

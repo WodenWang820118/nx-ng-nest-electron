@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 export class TaskService {
   constructor(
     @InjectModel(Task)
-    private taskRepository: typeof Task
+    private readonly taskRepository: typeof Task
   ) { }
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
