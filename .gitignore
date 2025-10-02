@@ -42,3 +42,4 @@ Thumbs.db
 .angular
 .database.sqlite3
 *nx
+.vite

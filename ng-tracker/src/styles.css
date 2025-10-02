@@ -1,0 +1,24 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
+@import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+@plugin "tailwindcss-primeui";
+
+/* Configure Tailwind v4 dark mode to use .app-dark class selector */
+@variant dark (.app-dark &);
+
+/* Simple fade-in utility for deferred loading states */
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.animate-fadeIn {
+	animation: fadeIn 180ms ease-out forwards;
+}
+
+/* Hint browsers about color scheme when dark mode is active */
+.app-dark {
+  color-scheme: dark;
+}
+

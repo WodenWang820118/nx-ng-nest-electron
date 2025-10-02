@@ -3,6 +3,7 @@ import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import { updateElectronApp } from 'update-electron-app';
 import { ChildProcess } from 'child_process';
+import log from 'electron-log';
 import * as pathUtils from './path-utils';
 import * as environmentUtils from './environment-utils';
 import * as backend from './backend';
@@ -12,12 +13,10 @@ import * as fileUtils from './file-utils';
 
 updateElectronApp({
   updateInterval: '1 hour',
-  logger: require('electron-log'),
+  logger: log,
 }); // additional configuration options available
 
 let server: ChildProcess;
-app.commandLine.appendSwitch('disable-gpu');
-app.commandLine.appendSwitch('use-gl', 'desktop');
 
 app.whenReady().then(async () => {
   server = backend.startBackend(process.resourcesPath);
