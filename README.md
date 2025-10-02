@@ -1,8 +1,5 @@
 # Nx-ng-nest-elec
 
-// TODO: update dependencies with ncu
-// TODO: use RsPack to start NestJS backend
-
 ## Overview
 
 This is a sample Electron app powered by Angular, Nest, SQLite3, Electron, and Nx. The project showcases the minimum setup to build an Electron app.

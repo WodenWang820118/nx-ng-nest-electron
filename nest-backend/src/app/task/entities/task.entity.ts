@@ -1,32 +1,28 @@
 import {
+  Entity,
   Column,
-  Table,
-  Model,
-  PrimaryKey,
-  DataType,
-} from 'sequelize-typescript';
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Table({ tableName: 'Tasks' })
-export class Task extends Model {
-  @PrimaryKey
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare id: string;
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare text: string;
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  declare day: string;
-  @Column({
-    type: DataType.BOOLEAN,
-    allowNull: false,
-  })
-  declare reminder: boolean;
+@Entity('tasks')
+export class Task {
+  @PrimaryColumn()
+  id!: string;
+
+  @Column()
+  text!: string;
+
+  @Column()
+  day!: string;
+
+  @Column()
+  reminder!: boolean;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
