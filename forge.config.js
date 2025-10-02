@@ -12,7 +12,6 @@ const { VitePlugin } = require('@electron-forge/plugin-vite');
 const config = {
   packagerConfig: {
     asar: true,
-    ignore: [/^\/node_modules/, /^\/dist\/apps\/(?!nest-backend)/],
     extraResource: [
       './dist/ng-tracker',
       './dist/nest-backend/main.js',

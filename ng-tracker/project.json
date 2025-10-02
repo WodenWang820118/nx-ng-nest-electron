@@ -15,9 +15,9 @@
         "browser": "ng-tracker/src/main.ts",
         "polyfills": [],
         "tsConfig": "ng-tracker/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
+        "inlineStyleLanguage": "css",
         "assets": ["ng-tracker/src/favicon.ico", "ng-tracker/src/assets"],
-        "styles": ["ng-tracker/src/styles.scss"],
+        "styles": ["ng-tracker/src/styles.css"],
         "scripts": []
       },
       "configurations": {
