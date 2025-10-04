@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TaskService } from '../../../shared/services/task.service';
 import { Task } from '../../../interfaces/task.interface';
 import { TaskItemComponent } from './task-item.component';
@@ -8,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -19,6 +21,7 @@ import { InputIconModule } from 'primeng/inputicon';
     RouterLink,
     IconFieldModule,
     InputIconModule,
+    PaginatorModule,
   ],
   template: `
     <div class="px-1 md:px-2 lg:px-3">
@@ -35,7 +38,8 @@ import { InputIconModule } from 'primeng/inputicon';
               <input
                 pInputText
                 type="text"
-                [(ngModel)]="query"
+                [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchChange($event)"
                 placeholder="Search tasks..."
               />
             </p-icon-field>
@@ -60,21 +64,33 @@ import { InputIconModule } from 'primeng/inputicon';
         <strong class="font-bold">Error:</strong>
         <span class="block sm:inline ml-2">{{ error() }}</span>
       </div>
-      } @if (!loading() && !error() && filteredTasks().length === 0) {
+      } @if (!loading() && !error() && tasks().length === 0) {
       <div class="text-center py-12">
         <p class="text-gray-500 dark:text-slate-400 text-lg">
-          No tasks yet. Add one to get started!
+          No tasks found. {{ searchQuery ? 'Try a different search.' : 'Add one to get started!' }}
         </p>
       </div>
       }
       <div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-        @for (task of filteredTasks(); track task.id) {
+        @for (task of tasks(); track task.id) {
         <app-task-item
           [task]="task"
           (taskChanged)="refreshTasks()"
         ></app-task-item>
         }
       </div>
+
+      @if (!loading() && tasks().length > 0) {
+      <div class="mt-6">
+        <p-paginator
+          [first]="first()"
+          [rows]="rows()"
+          [totalRecords]="totalRecords()"
+          [rowsPerPageOptions]="[5, 10, 20, 50]"
+          (onPageChange)="onPageChange($event)"
+        ></p-paginator>
+      </div>
+      }
     </div>
   `,
 })
@@ -83,22 +99,37 @@ export class TasksComponent {
   tasks = signal<Task[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  query = '';
-  filteredTasks = computed(() => {
-    const q = this.query.trim().toLowerCase();
-    if (!q) return this.tasks();
-    return this.tasks().filter((t) => {
-      const textMatch = t.text.toLowerCase().includes(q);
-      const dateStr = t.day
-        ? new Date(t.day).toLocaleString().toLowerCase()
-        : '';
-      const dateMatch = dateStr.includes(q);
-      return textMatch || dateMatch;
-    });
-  });
+  
+  // Pagination state
+  first = signal(0); // First record index
+  rows = signal(10); // Records per page
+  totalRecords = signal(0);
+  currentPage = signal(1);
+  
+  // Search state
+  searchQuery = '';
+  private readonly searchSubject = new Subject<string>();
 
   constructor(private taskService: TaskService) {
+    // Set up debounced search
+    this.searchSubject.pipe(debounceTime(300)).subscribe((query) => {
+      this.currentPage.set(1);
+      this.first.set(0);
+      this.loadTasks();
+    });
+
     // Initial load
+    this.loadTasks();
+  }
+
+  onSearchChange(query: string): void {
+    this.searchSubject.next(query);
+  }
+
+  onPageChange(event: PaginatorState): void {
+    this.first.set(event.first || 0);
+    this.rows.set(event.rows || 10);
+    this.currentPage.set(event.page ? event.page + 1 : 1);
     this.loadTasks();
   }
 
@@ -106,9 +137,16 @@ export class TasksComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.taskService.getTasks().subscribe({
-      next: (tasks) => {
-        this.tasks.set(tasks);
+    const params = {
+      page: this.currentPage(),
+      limit: this.rows(),
+      search: this.searchQuery.trim() || undefined,
+    };
+
+    this.taskService.getTasks(params).subscribe({
+      next: (response) => {
+        this.tasks.set(response.data);
+        this.totalRecords.set(response.total);
         this.loading.set(false);
       },
       error: (err) => {

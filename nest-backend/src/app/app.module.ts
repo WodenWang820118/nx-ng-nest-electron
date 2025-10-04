@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { dataBaseConfig } from '../app/database/database.config';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { TaskModule } from './task/task.module';
-import { HealthModule } from './health/health.module';
-import { LoggingInterceptorModule } from './logging-interceptor/logging-interceptor.module';
-import { LoggingInterceptor } from './logging-interceptor/logging-interceptor.service';
+import { dataBaseConfig } from './core/database/database.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggingInterceptorModule } from './core/logging-interceptor/logging-interceptor.module';
+import { LoggingInterceptor } from './core/logging-interceptor/logging-interceptor.service';
+import { HealthModule } from './core/health/health.module';
+import { TaskModule } from './feature/task/task.module';
 
 @Module({
   imports: [
-    HealthModule,
     ConfigModule.forRoot(),
-    SequelizeModule.forRoot(dataBaseConfig),
+    TypeOrmModule.forRoot(dataBaseConfig),
+    HealthModule,
     TaskModule,
     LoggingInterceptorModule,
   ],
