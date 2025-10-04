@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { cwd } from 'process';
-import { Task } from '../task/entities/task.entity';
+import { Task } from '../../feature/task/entities/task.entity';
 
 const DATABASE_NAME = 'database.sqlite3';
 

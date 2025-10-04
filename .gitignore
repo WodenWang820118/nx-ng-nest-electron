@@ -40,6 +40,6 @@ testem.log
 Thumbs.db
 
 .angular
-.database.sqlite3
 *nx
-.vite
+*vite
+database.sqlite3

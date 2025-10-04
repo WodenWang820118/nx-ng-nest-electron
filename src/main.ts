@@ -46,7 +46,7 @@ app.whenReady().then(async () => {
             process.resourcesPath
           )
         ),
-        error,
+        String(error),
         'error'
       );
     }

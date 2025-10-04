@@ -7,7 +7,7 @@ import * as fileUtils from './file-utils';
 import * as pathUtils from './path-utils';
 
 function startBackend(resourcesPath: string) {
-  let env;
+  let env: NodeJS.ProcessEnv;
   const rootBackendFolderPath = pathUtils.getRootBackendFolderPath(
     environmentUtils.getEnvironment(),
     resourcesPath
@@ -29,29 +29,33 @@ function startBackend(resourcesPath: string) {
   switch (environmentUtils.getEnvironment()) {
     case 'dev':
       env = {
+        ...process.env,
         DATABASE_PATH: databasePath,
-        PORT: 3000,
+        PORT: '3000',
         NODE_ENV: 'dev',
       };
       break;
     case 'staging':
       env = {
+        ...process.env,
         DATABASE_PATH: databasePath,
-        PORT: 3000,
+        PORT: '3000',
         NODE_ENV: 'staging',
       };
       break;
     case 'prod':
       env = {
+        ...process.env,
         DATABASE_PATH: databasePath,
-        PORT: 5000,
+        PORT: '5000',
         NODE_ENV: 'prod',
       };
       break;
     default:
       env = {
+        ...process.env,
         DATABASE_PATH: databasePath,
-        PORT: 5000,
+        PORT: '5000',
         NODE_ENV: 'prod',
       };
       break;
@@ -129,7 +133,7 @@ async function checkIfPortIsOpen(
         console.error(`Attempt ${attempt}: Error connecting to ${url}:`, error);
         fileUtils.logToFile(
           logFilePath,
-          `Attempt ${attempt}: ${error.toString()}`,
+          `Attempt ${attempt}: ${(error as any).toString()}`,
           'error'
         );
       }
