@@ -1,9 +1,14 @@
 import { BrowserWindow } from 'electron';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import * as pathUtils from './path-utils';
 import * as fileUtils from './file-utils';
 import * as environmentUtils from './environment-utils';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -50,7 +55,7 @@ function createLoadingWindow() {
         environmentUtils.getEnvironment(),
         process.resourcesPath
       ),
-      error,
+      String(error),
       'error'
     );
     return null;
